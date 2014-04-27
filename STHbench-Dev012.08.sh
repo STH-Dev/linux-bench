@@ -19,7 +19,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.07'
+rev='12.08'
 
 
 revhist()
@@ -45,8 +45,10 @@ cat << EOF
 	* 12.05 Updated: OpenSSL to latest revision free of heartbleed.
 	* 12.06 Fixed: redis config in wrong directory. 
 	* 12.07 Fixed: Detection of lscpu for Ubuntu. 
-			Added: Detect Docker environment to skip updates/installs
-EOF
+		Added: Detect Docker environment to skip updates/installs
+	* 12.08 Fixed: Removed PTS from standard run to cover heartbleed bug.   
+		Added: OSSL multi threaded support to replace PTS, lscpu also run without flags.
+		EOF
 #exit 1
 #Future ideas/plans/hopes/dreams
 
@@ -137,13 +139,13 @@ Update_Install_Debian()
 	apt-get -y update && apt-get -y upgrade && apt-get install -f
 	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
 	apt-get install -f
-	dpkg -s phoronix-test-suite 2>&1 > /dev/null 2>&1
-	NEED_PTS=$(echo $?)
+#	dpkg -s phoronix-test-suite 2>&1 > /dev/null 2>&1
+#	NEED_PTS=$(echo $?)
 	mkdir -p /usr/tmp/
 	
-	if [ $NEED_PTS > 0 ]; then
-		wget -N http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_4.8.6_all.deb && dpkg -i phoronix-test-suite_4.8.6_all.deb
-	fi
+#	if [ $NEED_PTS > 0 ]; then
+#		wget -N http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_4.8.6_all.deb && dpkg -i phoronix-test-suite_4.8.6_all.deb
+#	fi
 }
 
 # Update and install required packages (CentOS/RHEL)
@@ -243,7 +245,8 @@ sysinfo()
 	#Cpu info
 
 eval "strings `which lscpu`" | grep -q version ;
-if [ $? = 0 ] ; then 
+if [ $? = 0 ] ; then
+	lscpu
 	lscpu -V
 	lscpu -e
 	else 
@@ -376,7 +379,7 @@ EOD
 		cd openssl-1.0.1g/
 		./config no-zlib 2>&1 >> /dev/null
 		make 2>&1 >> /dev/null
-		./apps/openssl speed rsa4096
+		./apps/openssl speed rsa4096 -multi \$NUM_CPU_CORES 
 	}
 
 
@@ -594,7 +597,7 @@ Cleanup()
 	rmCray
 	rmOSSL
 	rmUbench
-	rmPTS
+#	rmPTS
 	
 	#return to User Dir
 	cd ~/
