@@ -19,7 +19,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.06'
+rev='12.07'
 
 
 revhist()
@@ -44,6 +44,8 @@ cat << EOF
 	* 12.04 Added: Menu, flags: hVR.  Which call: help, Version, Revision History.
 	* 12.05 Updated: OpenSSL to latest revision free of heartbleed.
 	* 12.06 Fixed: redis config in wrong directory. 
+	* 12.07 Fixed: Detection of lscpu for Ubuntu. 
+			Added: Detect Docker environment to skip updates/installs
 EOF
 #exit 1
 #Future ideas/plans/hopes/dreams
@@ -211,7 +213,9 @@ whichdistro()
 ##########	Update and install required packages	###########
 dlDependancies()
 {
-	if [ "${DIST}" = "CentOS" ] ; then
+	if [ "${DOCKER}" = "TRUE" ] ; then
+	echo "In a Docker container, no updates run."
+	elif [ "${DIST}" = "CentOS" ] ; then
 	Update_Install_RHEL
 	elif [ "${DIST}" = "RedHat" ] ; then
 	Update_Install_RHEL
@@ -237,8 +241,14 @@ sysinfo()
 	#I expect more information to be gathered here.
 	
 	#Cpu info
+
+eval "strings `which lscpu`" | grep -q version ;
+if [ $? = 0 ] ; then 
 	lscpu -V
 	lscpu -e
+	else 
+	lscpu;
+fi
 }
 
 
