@@ -134,6 +134,7 @@ host=$(hostname)
 log="STHbench"$rev"_"$host"_"$full_date.log
 #outdir=$host"_"$full_date
 #mkdir $outdir
+
 }
 
 
@@ -143,10 +144,9 @@ Update_Install_Debian()
 	apt-get -y update && apt-get -y upgrade && apt-get install -f
 	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
 	apt-get install -f
+	mkdir -p /usr/tmp/
 #	dpkg -s phoronix-test-suite 2>&1 > /dev/null 2>&1
 #	NEED_PTS=$(echo $?)
-	mkdir -p /usr/tmp/
-	
 #	if [ $NEED_PTS > 0 ]; then
 #		wget -N http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_4.8.6_all.deb && dpkg -i phoronix-test-suite_4.8.6_all.deb
 #	fi
@@ -158,7 +158,7 @@ Update_Install_RHEL()
 	rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 	rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
 	yum -y update && yum -y upgrade
-	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo phoronix-test-suite expect php-common glibc.i686 gfortran
+	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran #phoronix-test-suite
 }
 
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
@@ -219,6 +219,8 @@ whichdistro()
 ##########	Update and install required packages	###########
 dlDependancies()
 {
+# Test to see if $DOCKER has been defined. Those building DockerFiles can set DOCKER=TRUE to bypass installing/updates.
+
 	if [ "${DOCKER}" = "TRUE" ] ; then
 	echo "In a Docker container, no updates run."
 	elif [ "${DIST}" = "CentOS" ] ; then
@@ -263,8 +265,9 @@ fi
 
 dlBenches()
 {
-	#enter normal benchdir
-	cd $benchdir
+#enter normal benchdir
+cd $benchdir
+
 ### will add option for proxy use of wget.
 
 #Hardinfo
@@ -305,24 +308,23 @@ runBenches()
 	# HardInfo
 	hardi()
 	{
-	
 	cd $benchdir
-	echo "hardinfo starts here"
+	echo "Running HardInfo test"
 	hardinfo --generate-report --report-format text 
 	}
 
 	# UnixBench 5.1.3
 	ubench()
 	{
-
 	cd $benchdir
-	echo "started ubench"
+	echo "Building UnixBench"
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
 	mv ../fix-limitation.patch .	
 	time make 
 	patch Run fix-limitation.patch
+	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
 	}
 
@@ -330,15 +332,15 @@ runBenches()
 	cray()
 	{
 	cd $benchdir
+	echo "Running C-Ray test"
 	tar -zxf c-ray-1.1.tar.gz && cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cd ..
 	}
-
 
 	# Phoronix Test Suite
 	PTS()
 	{
 	
-expect <<EOD
+	expect <<EOD
 	set timeout -1
 	spawn -noecho phoronix-test-suite batch-setup
 	expect {
@@ -350,57 +352,58 @@ expect <<EOD
 	"Save test results when in batch mode (Y/n):" { send "n\n"; exp_continue }
 	}
 EOD
-
 	phoronix-test-suite batch-benchmark pts/stream pts/compress-7zip pts/openssl pts/pybench
-	
 	}
 
 
 	# STREAM by Dr. John D. McCalpin
 	stream()
 	{
-	        cd $benchdir
-		gcc stream.c -O3 -march=native -fopenmp -o stream-me
+    cd $benchdir
+	echo "Building STREAM"
+	gcc stream.c -O3 -march=native -fopenmp -o stream-me
 
-		# Determine number of physical cores (not hyperthread) and set OMP to cores value
-		procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-		pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
-		cores=$((procs*pcores))
+	# Determine number of physical cores (not hyperthread) and set OMP to cores value
+	procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+	pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
+	cores=$((procs*pcores))
 
-		export OMP_NUM_THREADS=$cores
-		export GOMP_CPU_AFFINITY=0-$((cores-1))
-		echo $GOMP_CPU_AFFINITY
+	export OMP_NUM_THREADS=$cores
+	export GOMP_CPU_AFFINITY=0-$((cores-1))
+	echo $GOMP_CPU_AFFINITY
 
-		./stream-me
+	echo "Running STREAM test"
+	./stream-me
 	}
 
 
 	# OpenSSL
 	OSSL()
 	{
-	        cd $benchdir
-		tar -zxvf openssl-1.0.1g.tar.gz 2>&1 >> /dev/null
-		cd openssl-1.0.1g/
-		./config no-zlib 2>&1 >> /dev/null
-		make 2>&1 >> /dev/null
-		./apps/openssl speed rsa4096 -multi \$NUM_CPU_CORES 
+	cd $benchdir
+	tar -zxvf openssl-1.0.1g.tar.gz 2>&1 >> /dev/null
+	cd openssl-1.0.1g/
+	echo "Building OpenSSL"
+	./config no-zlib 2>&1 >> /dev/null
+	make 2>&1 >> /dev/null
+	echo "Running OpenSSL test"
+	./apps/openssl speed rsa4096 -multi \$NUM_CPU_CORES 
 	}
 
 
  	crafty()
  	{
-	        cd $benchdir
- 		wget -N http://www.craftychess.com/crafty-23.4.zip
- 		unzip -o crafty-23.4.zip
- 		cd crafty-23.4/
- 		export target=LINUX
- 		export CFLAGS="-Wall -pipe -O3 -fomit-frame-pointer $CFLAGS"
- 		export CXFLAGS="-Wall -pipe -O3 -fomit-frame-pointer"
- 		export LDFLAGS="$LDFLAGS -lstdc++"
- 		make crafty-make
- 		
- 		chmod +x crafty
- 		./crafty bench end
+    cd $benchdir
+   	wget -N http://www.craftychess.com/crafty-23.4.zip
+   	unzip -o crafty-23.4.zip
+   	cd crafty-23.4/
+   	export target=LINUX
+   	export CFLAGS="-Wall -pipe -O3 -fomit-frame-pointer $CFLAGS"
+   	export CXFLAGS="-Wall -pipe -O3 -fomit-frame-pointer"
+   	export LDFLAGS="$LDFLAGS -lstdc++"
+   	make crafty-make
+   	chmod +x crafty
+   	./crafty bench end
  	}
 
 
@@ -408,47 +411,49 @@ EOD
 	# sysbench CPU test prime
 	sysb()
 	{
-	        cd $benchdir
-		echo "Running sysbench CPU Single Thread"
-		sysbench --test=cpu --cpu-max-prime=300000 run
-		echo "Running sysbench CPU Multi-Threaded"
-		nproc=`nproc`
-		sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=500000 run
+    cd $benchdir
+   	echo "Running sysbench CPU Single Thread"
+   	sysbench --test=cpu --cpu-max-prime=300000 run
+   	echo "Running sysbench CPU Multi-Threaded"
+   	nproc=`nproc`
+   	sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=500000 run
 	}
 
 
 	# redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
 	red()
 	{
-	        cd $benchdir
-		#wget http://download.redis.io/redis-stable.tar.gz
-		tar xzf redis-stable.tar.gz && cd redis-stable && make install
-		#wget http://forums.servethehome.com/pjk/6379.conf
-		[[ -d /etc/redis ]] || ( mkdir /etc/redis && cp $benchdir/6379.conf /etc/redis/6379.conf )
+     cd $benchdir
+	echo "Building Redis"
+   	#wget http://download.redis.io/redis-stable.tar.gz
+   	tar xzf redis-stable.tar.gz && cd redis-stable && make install
+   	#wget http://forums.servethehome.com/pjk/6379.conf
+   	[[ -d /etc/redis ]] || ( mkdir /etc/redis && cp $benchdir/6379.conf /etc/redis/6379.conf )
 
-		cp utils/redis_init_script /etc/init.d/redis_6379
-		[[ -d /var/redis ]] || ( mkdir /var/redis && mkdir /var/redis/6379 )
+   	cp utils/redis_init_script /etc/init.d/redis_6379
+   	[[ -d /var/redis ]] || ( mkdir /var/redis && mkdir /var/redis/6379 )
 
-		service redis_6379 start
+   	service redis_6379 start
 
-		# Original redis benchmark set/ get test
+   	# Original redis benchmark set/ get test
 
-		redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
+	echo "Running Redis test"
+   	redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
 
-		BIN=redis-benchmark
+   	BIN=redis-benchmark
 
-		payload=32
-		iterations=100000
-		keyspace=100000
+   	payload=32
+   	iterations=100000
+   	keyspace=100000
 
-		for clients in 1 5 10 20 30 40 50 60 70 80 90 100
+   	for clients in 1 5 10 20 30 40 50 60 70 80 90 100
+   	do
+	   	SPEED=0
+		for dummy in 0 1 2
 		do
-			SPEED=0
-			for dummy in 0 1 2
-			do
-				S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
+			S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
 			VALUE=$(echo $S | awk '{printf "%.0f",$1}')
-				if [ $(($VALUE > $SPEED)) != 0 ]
+			if [ $(($VALUE > $SPEED)) != 0 ]
 				then
 					SPEED=$VALUE
 				fi
@@ -456,66 +461,66 @@ EOD
 			echo "$clients $SPEED"
 		done
 
-		redis-cli shutdown
+	redis-cli shutdown
 	}
 
 
-	# NPB Benchmarks (need to add remove script)
+	# NPB Benchmarks
 	NPB()
 	{
-	        cd $benchdir
-		#wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
+    cd $benchdir
+	#wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
+	tar -zxvf NPB3.3.1.tar.gz
+	cd NPB3.3.1/NPB3.3-OMP/
+	echo "Building NPB"
 
-		tar -zxvf NPB3.3.1.tar.gz
-		cd NPB3.3.1/NPB3.3-OMP/
+   	# Use the provided makefile definitions
+   	cp config/NAS.samples/make.def.gcc_x86 config/make.def
 
+	# Define which tests to build
+	echo "ft A" >> config/suite.def
+	#echo "mg A" >> config/suite.def
+	#echo "sp A" >> config/suite.def
+	#echo "lu A" >> config/suite.def
+	echo "bt A" >> config/suite.def
+	#echo "is A" >> config/suite.def
+	#echo "ep A" >> config/suite.def
+	#echo "cg A" >> config/suite.def
+	#echo "ua A" >> config/suite.def
+	#echo "dc A" >> config/suite.def
 
-		# Use the provided makefile definitions
-		cp config/NAS.samples/make.def.gcc_x86 config/make.def
+	make suite
 
+	# Determine number of physical cores (not hyperthread) and set OMP to cores value
+	procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+	pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
+	cores=$((procs*pcores))
 
-		# Define which tests to build
-		echo "ft A" >> config/suite.def
-		#echo "mg A" >> config/suite.def
-		#echo "sp A" >> config/suite.def
-		#echo "lu A" >> config/suite.def
-		echo "bt A" >> config/suite.def
-		#echo "is A" >> config/suite.def
-		#echo "ep A" >> config/suite.def
-		#echo "cg A" >> config/suite.def
-		#echo "ua A" >> config/suite.def
-		#echo "dc A" >> config/suite.def
+	export OMP_NUM_THREADS=$cores
 
-		make suite
-
-		# Determine number of physical cores (not hyperthread) and set OMP to cores value
-		procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-		pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
-		cores=$((procs*pcores))
-
-		export OMP_NUM_THREADS=$cores
-
-		bin/bt.A.x
-		bin/ft.A.x
+	echo "Running NPB tests"
+	bin/bt.A.x
+	bin/ft.A.x
 	}
 
 
 	# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
 	NAMD()
 	{
-	        cd $benchdir
-		cores=$(grep "processor" /proc/cpuinfo | wc -l)
+    cd $benchdir
+	cores=$(grep "processor" /proc/cpuinfo | wc -l)
 
-		tar xvfz NAMD_2.9_Linux-x86_64-multicore.tar.gz 
-		tar xvfz apoa1.tar.gz
+	echo "Building NAMD"
+	tar xvfz NAMD_2.9_Linux-x86_64-multicore.tar.gz 
+	tar xvfz apoa1.tar.gz
 
-		echo "Using" $cores "threads"
-		echo "Running benchmark... (will take a while)"
+	echo "Using" $cores "threads"
+	echo "Running NAMD benchmark... (will take a while)"
 
-		cd NAMD_2.9_Linux-x86_64-multicore
-		timeperstep=$(./namd2 +p$cores +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
+	cd NAMD_2.9_Linux-x86_64-multicore
+	timeperstep=$(./namd2 +p$cores +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
 
-		echo "Time per step" $timeperstep
+	echo "Time per step" $timeperstep
 	}
     
 	# p7zip
@@ -527,6 +532,7 @@ EOD
 		wget https://dl.dropboxusercontent.com/u/124184/p7zip_9.20.1_src_all.tar.bz2
 	fi
 
+	echo "Building p7zip"
 	tar xvfj p7zip_9.20.1_src_all.tar.bz2
 	cd p7zip_9.20.1
 	make -j 2>&1 >> /dev/null
@@ -550,8 +556,8 @@ EOD
 	ubench
 	echo "cray"
 	cray
-	echo "PTS"
-	PTS
+#	echo "PTS"
+#	PTS
 	echo "stream"
 	stream
 	echo "OSSL"
@@ -622,6 +628,12 @@ Cleanup()
 		[ "$NEED_PTS" > "0" -a "$DIST" = "Debian" ] && apt-get -y --purge remove phoronix-test-suite && rm -f phoronix-test-suite_4.8.6_all.deb
 	}
 
+	# Remove NPB3.3.1
+	rmNPB()
+	{
+		rm -rf NPB3.3.1*
+	}
+
 	# Remove p7zip
 	rmp7zip()
 	{
@@ -629,11 +641,12 @@ Cleanup()
 	}
 
 	rmRedis
-	#rmCrafty (deprecated)
+#	rmCrafty (deprecated)
 	rmCray
 	rmOSSL
 	rmUbench
 	rmp7zip
+	rmNPB
 #	rmPTS
 	
 	#return to User Dir
@@ -641,7 +654,7 @@ Cleanup()
 }
 
 
-#Runtime  This is where everything is actually run from and called...
+#	Runtime  This is where everything is actually run from and called...
 #
 # 	This is where a menu would go for runtime options...
 #
