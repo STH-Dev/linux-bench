@@ -19,7 +19,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.08'
+rev='12.09'
 
 
 revhist()
@@ -48,7 +48,11 @@ cat << EOF
 		Added: Detect Docker environment to skip updates/installs
 	* 12.08 Fixed: Removed PTS from standard run to cover heartbleed bug.   
 		Added: OSSL multi threaded support to replace PTS, lscpu also run without flags.
-		EOF
+	* 12.09 Added: p7zip
+
+
+EOF
+
 #exit 1
 #Future ideas/plans/hopes/dreams
 
@@ -513,6 +517,30 @@ EOD
 
 		echo "Time per step" $timeperstep
 	}
+    
+	# p7zip
+	p7zip()
+	{
+	cd $benchdir
+	if [ ! -e p7zip_9.20.1_src_all.tar.bz2 ]
+ 		then
+		wget https://dl.dropboxusercontent.com/u/124184/p7zip_9.20.1_src_all.tar.bz2
+	fi
+
+	tar xvfj p7zip_9.20.1_src_all.tar.bz2
+	cd p7zip_9.20.1
+	make -j 2>&1 >> /dev/null
+
+	echo "Starting 7zip benchmark, this will take a while"
+	bin/7za b >> output.txt
+	
+	compressmips=$(grep Avr output.txt | tr -s ' ' |cut -d" " -f4)
+	decompressmips=$(grep Avr output.txt | tr -s ' ' |cut -d" " -f7)
+	
+	echo "Compress speed (MIPS):" $compressmips
+    echo "Decompress speed (MIPS):" $decompressmips
+	}
+		
 
 	#Individual modules run below...comment them out to prevent them from running.
 	
@@ -538,6 +566,8 @@ EOD
 	NPB
 	echo "NAMD"
 	NAMD
+	echo "p7zip"
+	p7zip
 }
 
 
@@ -592,11 +622,18 @@ Cleanup()
 		[ "$NEED_PTS" > "0" -a "$DIST" = "Debian" ] && apt-get -y --purge remove phoronix-test-suite && rm -f phoronix-test-suite_4.8.6_all.deb
 	}
 
+	# Remove p7zip
+	rmp7zip()
+	{
+		rm -rf p7zip*
+	}
+
 	rmRedis
 	#rmCrafty (deprecated)
 	rmCray
 	rmOSSL
 	rmUbench
+	rmp7zip
 #	rmPTS
 	
 	#return to User Dir
