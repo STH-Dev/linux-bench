@@ -52,6 +52,7 @@ cat << EOF
 	* 12.10 Fixed: OpenSSL
 			Moved: Cleanup functions within each test
 			Added: time in front of each test
+			Modified: Cleaned up installers - NAMD, p7zip
 
 
 EOF
@@ -146,7 +147,7 @@ Update_Install_Debian()
 {
 	apt-get -y update && apt-get -y upgrade && apt-get install -f
 	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
-	apt-get install -f
+apt-get install -f
 	mkdir -p /usr/tmp/
 #	dpkg -s phoronix-test-suite 2>&1 > /dev/null 2>&1
 #	NEED_PTS=$(echo $?)
@@ -158,10 +159,10 @@ Update_Install_Debian()
 # Update and install required packages (CentOS/RHEL)
 Update_Install_RHEL()
 {
-	rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-	rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-	yum -y update && yum -y upgrade
-	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran #phoronix-test-suite
+rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+yum -y update && yum -y upgrade
+yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran #phoronix-test-suite
 }
 
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
@@ -295,10 +296,6 @@ wget http://forums.servethehome.com/pjk/6379.conf
 
 # NPB Benchmarks (need to add remove script)
 wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
-
-#NAMD
-wget http://forums.servethehome.com/pjk/NAMD_2.9_Linux-x86_64-multicore.tar.gz
-wget http://forums.servethehome.com/pjk/apoa1.tar.gz
 }
 
 
@@ -530,12 +527,31 @@ runBenches()
 	# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
 	NAMD()
 	{
-	cd $benchdir
-	cores=$(grep "processor" /proc/cpuinfo | wc -l)
-
 	echo "Building NAMD"
-	tar xvfz NAMD_2.9_Linux-x86_64-multicore.tar.gz 
-	tar xvfz apoa1.tar.gz
+	cd $benchdir
+
+	NAMDbase=NAMD_2.9_Linux-x86_64-multicore
+
+	if [ -e ./$NAMDbase/namd2 ] ; then 
+		echo "NAMD Installed"
+	elif [ -e $NAMDbase.tar.gz ] ; then 
+		tar xvfz $NAMDbase.tar.gz 
+	else
+		wget http://forums.servethehome.com/pjk/$NAMDbase.tar.gz
+                tar xvfz $NAMDbase.tar.gz
+	fi
+
+	APOAbase=apoa1
+	if [ -e ./$APOAbase/apoa1.pdb ]; then 
+		echo "APOA1 Installed"
+	elif [ -e $APOAbase.tar.gz ] ; then 
+		tar xvfz $APOAbase.tar.gz
+	else
+		wget http://forums.servethehome.com/pjk/$APOAbase.tar.gz 
+		tar xvfz $APOAbase.tar.gz
+	fi
+
+	cores=$(grep "processor" /proc/cpuinfo | wc -l)
 
 	echo "Using" $cores "threads"
 	echo "Running NAMD benchmark... (will take a while)"
@@ -551,14 +567,20 @@ runBenches()
 	p7zip()
 	{
 	cd $benchdir
-	if [ ! -e p7zip_9.20.1_src_all.tar.bz2 ]
- 		then
-		wget https://dl.dropboxusercontent.com/u/124184/p7zip_9.20.1_src_all.tar.bz2
+
+	p7zipbase=p7zip_9.20.1
+
+	if [ -e ./$p7zipbase/bin/7za ] ; then
+		echo "p7zip installed"
+	elif [ -e $p7zipbase\_src_all.tar.bz2 ] ; then
+		tar xvfj $p7zipbase\_src_all.tar.bz2
+	else
+		wget https://dl.dropboxusercontent.com/u/124184/$p7zipbase\_src_all.tar.bz2
+		tar xvfj $p7zipbase\_src_all.tar.bz2
 	fi
 
 	echo "Building p7zip"
-	tar xvfj p7zip_9.20.1_src_all.tar.bz2
-	cd p7zip_9.20.1
+	cd $p7zipbase
 	make -j 2>&1 >> /dev/null
 
 	echo "Starting 7zip benchmark, this will take a while"
