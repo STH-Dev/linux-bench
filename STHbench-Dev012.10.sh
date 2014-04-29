@@ -19,7 +19,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.09'
+rev='12.10'
 
 
 revhist()
@@ -49,6 +49,9 @@ cat << EOF
 	* 12.08 Fixed: Removed PTS from standard run to cover heartbleed bug.   
 		Added: OSSL multi threaded support to replace PTS, lscpu also run without flags.
 	* 12.09 Added: p7zip
+	* 12.10 Fixed: OpenSSL
+			Moved: Cleanup functions within each test
+			Added: time in front of each test
 
 
 EOF
@@ -322,10 +325,11 @@ runBenches()
 	
 	cd UnixBench 
 	mv ../fix-limitation.patch .	
-	time make 
+	make 
 	patch Run fix-limitation.patch
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
+	rm -rf UnixBench*
 	}
 
 	# C-Ray 1.1
@@ -333,33 +337,36 @@ runBenches()
 	{
 	cd $benchdir
 	echo "Running C-Ray test"
-	tar -zxf c-ray-1.1.tar.gz && cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cd ..
+	tar -zxf c-ray-1.1.tar.gz && cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && \
+	cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cd ..
+	rm -rf c-ray-1.1*
 	}
 
-	# Phoronix Test Suite
-	PTS()
-	{
-	
-	expect <<EOD
-	set timeout -1
-	spawn -noecho phoronix-test-suite batch-setup
-	expect {
-	"Do you agree to these terms and wish to proceed (Y/n):" { send "y\n"; exp_continue }
-	"Enable anonymous usage / statistics reporting (Y/n):" { send "n\n"; exp_continue }
-	"Enable anonymous statistical reporting of installed software / hardware (Y/n):" { send "n\n"; exp_continue }	
-
-	"Run all test options (Y/n):" { send "y\n"; exp_continue }
-	"Save test results when in batch mode (Y/n):" { send "n\n"; exp_continue }
-	}
-EOD
-	phoronix-test-suite batch-benchmark pts/stream pts/compress-7zip pts/openssl pts/pybench
-	}
+#	# Phoronix Test Suite
+#	PTS()
+#	{
+#	
+#	expect <<EOD
+#	set timeout -1
+#	spawn -noecho phoronix-test-suite batch-setup
+#	expect {
+#	"Do you agree to these terms and wish to proceed (Y/n):" { send "y\n"; exp_continue }
+#	"Enable anonymous usage / statistics reporting (Y/n):" { send "n\n"; exp_continue }
+#	"Enable anonymous statistical reporting of installed software / hardware (Y/n):" { send "n\n"; exp_continue }	
+#
+#	"Run all test options (Y/n):" { send "y\n"; exp_continue }
+#	"Save test results when in batch mode (Y/n):" { send "n\n"; exp_continue }
+#	}
+#EOD
+#	phoronix-test-suite batch-benchmark pts/stream pts/compress-7zip pts/openssl pts/pybench
+# [ "$NEED_PTS" > "0" -a "$DIST" = "Debian" ] && apt-get -y --purge remove phoronix-test-suite && rm -f phoronix-test-suite_4.8.6_all.deb
+#}
 
 
 	# STREAM by Dr. John D. McCalpin
 	stream()
 	{
-    cd $benchdir
+	cd $benchdir
 	echo "Building STREAM"
 	gcc stream.c -O3 -march=native -fopenmp -o stream-me
 
@@ -387,13 +394,16 @@ EOD
 	./config no-zlib 2>&1 >> /dev/null
 	make 2>&1 >> /dev/null
 	echo "Running OpenSSL test"
-	./apps/openssl speed rsa4096 -multi \$NUM_CPU_CORES 
+   	nproc=`nproc`
+	./apps/openssl speed rsa4096 -multi ${nproc}
+
+	rm -rf openssl*
 	}
 
 
  	crafty()
  	{
-    cd $benchdir
+	cd $benchdir
    	wget -N http://www.craftychess.com/crafty-23.4.zip
    	unzip -o crafty-23.4.zip
    	cd crafty-23.4/
@@ -404,6 +414,7 @@ EOD
    	make crafty-make
    	chmod +x crafty
    	./crafty bench end
+	rm -rf crafty-23.4*
  	}
 
 
@@ -411,7 +422,7 @@ EOD
 	# sysbench CPU test prime
 	sysb()
 	{
-    cd $benchdir
+	cd $benchdir
    	echo "Running sysbench CPU Single Thread"
    	sysbench --test=cpu --cpu-max-prime=300000 run
    	echo "Running sysbench CPU Multi-Threaded"
@@ -423,7 +434,7 @@ EOD
 	# redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
 	red()
 	{
-     cd $benchdir
+	cd $benchdir
 	echo "Building Redis"
    	#wget http://download.redis.io/redis-stable.tar.gz
    	tar xzf redis-stable.tar.gz && cd redis-stable && make install
@@ -462,13 +473,24 @@ EOD
 		done
 
 	redis-cli shutdown
+
+	rm -rf /etc/redis
+	rm -f /etc/init.d/redis_6379
+	rm -rf /var/redis
+	rm -f /usr/local/bin/redis-benchmark
+	rm -f /usr/local/bin/redis-check-aof
+	rm -f /usr/local/bin/redis-check-dump
+	rm -f /usr/local/bin/redis-cli
+	rm -f /usr/local/bin/redis-server
+	rm -f redis-stable.tar.gz
+	rm -rf redis-stable
 	}
 
 
 	# NPB Benchmarks
 	NPB()
 	{
-    cd $benchdir
+	cd $benchdir
 	#wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
 	tar -zxvf NPB3.3.1.tar.gz
 	cd NPB3.3.1/NPB3.3-OMP/
@@ -501,13 +523,14 @@ EOD
 	echo "Running NPB tests"
 	bin/bt.A.x
 	bin/ft.A.x
+	rm -rf NPB3.3.1*
 	}
 
 
 	# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
 	NAMD()
 	{
-    cd $benchdir
+	cd $benchdir
 	cores=$(grep "processor" /proc/cpuinfo | wc -l)
 
 	echo "Building NAMD"
@@ -521,6 +544,7 @@ EOD
 	timeperstep=$(./namd2 +p$cores +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
 
 	echo "Time per step" $timeperstep
+	rm -rf NAMD* apoa1*
 	}
     
 	# p7zip
@@ -544,113 +568,38 @@ EOD
 	decompressmips=$(grep Avr output.txt | tr -s ' ' |cut -d" " -f7)
 	
 	echo "Compress speed (MIPS):" $compressmips
-    echo "Decompress speed (MIPS):" $decompressmips
+	echo "Decompress speed (MIPS):" $decompressmips
+	
+	rm -rf p7zip*
 	}
 		
 
 	#Individual modules run below...comment them out to prevent them from running.
 	
 	echo "hardinfo"  
-	hardi
+	time hardi
 	echo "ubench"
-	ubench
+	time ubench
 	echo "cray"
-	cray
+	time cray
 #	echo "PTS"
 #	PTS
 	echo "stream"
-	stream
+	time stream
 	echo "OSSL"
-	OSSL  
-	echo "crafty"
-	#crafty
+	time OSSL  
+#	echo "crafty"
+#	crafty
 	echo "sysbench"
-	sysb 
+	time sysb 
 	echo "redis"
-	red
+	time red
 	echo "NPB"
-	NPB
+	time NPB
 	echo "NAMD"
-	NAMD
+	time NAMD
 	echo "p7zip"
-	p7zip
-}
-
-
-#Cleanup
-Cleanup()
-{
-	# Remove Redis
-	rmRedis()
-	{
-		rm -rf /etc/redis
-		rm -f /etc/init.d/redis_6379
-		rm -rf /var/redis
-		rm -f /usr/local/bin/redis-benchmark
-		rm -f /usr/local/bin/redis-check-aof
-		rm -f /usr/local/bin/redis-check-dump
-		rm -f /usr/local/bin/redis-cli
-		rm -f /usr/local/bin/redis-server
-		rm -f redis-stable.tar.gz
-		rm -rf redis-stable
-	}
-
-	# Remove crafty
-	rmCrafty()
-	{
-		rm -rf crafty-23.4
-		rm -r crafty-23.4.zip
-	}
-
-	# Remove c-ray
-	rmCray()
-	{
-		rm -f c-ray-1.1.tar.gz
-		rm -rf c-ray-1.1
-	}
-
-	# Remove OpenSSL
-	rmOSSL()
-	{
-		rm -rf openssl-1.0.1g
-	}
-
-	# Remove UnixBench5.1.3.tgz
-	rmUbench()
-	{
-		rm -f UnixBench5.1.3.tgz
-		rm -rf UnixBench
-	}
-
-	# Remove Phoronix test suite
-	rmPTS()
-	{
-		[ "$NEED_PTS" > "0" -a "$DIST" = "Debian" ] && apt-get -y --purge remove phoronix-test-suite && rm -f phoronix-test-suite_4.8.6_all.deb
-	}
-
-	# Remove NPB3.3.1
-	rmNPB()
-	{
-		rm -rf NPB3.3.1*
-	}
-
-	# Remove p7zip
-	rmp7zip()
-	{
-		rm -rf p7zip*
-	}
-
-	rmRedis
-#	rmCrafty (deprecated)
-	rmCray
-	rmOSSL
-	rmUbench
-	rmp7zip
-	rmNPB
-#	rmPTS
-	
-	#return to User Dir
-	cd ~/
+	time p7zip
 }
 
 
@@ -660,8 +609,6 @@ Cleanup()
 #
 
 rootcheck
-
-
 
 while getopts "hVR" arg; do
   case $arg in
@@ -703,8 +650,6 @@ dlBenches
 echo "run benches"
 runBenches
 echo "Uninstall benches"
-echo "cleanup"
-Cleanup
 echo "done"
 
 #The end, thanks for playing.
