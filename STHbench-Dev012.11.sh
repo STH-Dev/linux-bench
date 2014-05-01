@@ -299,6 +299,7 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	patch Run fix-limitation.patch
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
+	cd ..
 	rm -rf UnixBench*
 	}
 
