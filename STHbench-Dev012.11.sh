@@ -19,7 +19,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.10'
+rev='12.11'
 
 
 revhist()
@@ -52,6 +52,8 @@ cat << EOF
 	* 12.10 Fixed: OpenSSL
 			Moved: Cleanup functions within each test
 			Added: time in front of each test
+			Modified: Cleaned up installers - NAMD, p7zip
+	* 12.11 Modified: Moved all installers into new install routine and localized the install.
 
 
 EOF
@@ -123,21 +125,18 @@ rootcheck()
 	fi
 }
 
-
 #############Set Functions################
 setup()
 {
-#not sure this is working...
-benchdir=`pwd`
-NEED_PTS=1
+	benchdir=`pwd`
+	NEED_PTS=1
 
-date_str="+%Y_%m%d_%H%M%S"
-full_date=`date $date_str`
-host=$(hostname)
-log="STHbench"$rev"_"$host"_"$full_date.log
-#outdir=$host"_"$full_date
-#mkdir $outdir
-
+	date_str="+%Y_%m%d_%H%M%S"
+	full_date=`date $date_str`
+	host=$(hostname)
+	log="STHbench"$rev"_"$host"_"$full_date.log
+	#outdir=$host"_"$full_date
+	#mkdir $outdir
 }
 
 
@@ -233,74 +232,43 @@ dlDependancies()
 	elif [ "${DIST}" = "Debian" ] ; then
 	Update_Install_Debian
 	fi
-	#Else?   What do we do if its not one of those three?
 }
-
 
 # Display script output and append to log
 benchlog()
 {
-exec > >(tee --append $log)
-exec 2>&1
-echo ${OSSTR}
+	exec > >(tee --append $log)
+	exec 2>&1
+	echo ${OSSTR}
 }
+
+
+extract()
+{
+	if [ -e ./$appbin ] ; then
+		echo "$apptgz already installed"
+	elif [ -e ./$apptgz ] ; then
+		tar $tgzstring $apptgz
+	else
+		wget $appdlpath
+		tar $tgzstring $apptgz
+	fi
+}
+
 
 
 #System information and log capture.
 sysinfo()
 {
-	#I expect more information to be gathered here.
-	
-	#Cpu info
-
-eval "strings `which lscpu`" | grep -q version ;
-if [ $? = 0 ] ; then
-	lscpu
-	lscpu -V
-	lscpu -e
+	eval "strings `which lscpu`" | grep -q version ;
+	if [ $? = 0 ] ; then
+		lscpu
+		lscpu -V
+		lscpu -e
 	else 
-	lscpu;
-fi
+		lscpu;
+	fi
 }
-
-
-#########	Download Benchmarks ###########
-
-dlBenches()
-{
-#enter normal benchdir
-cd $benchdir
-
-### will add option for proxy use of wget.
-
-#Hardinfo
-#Downloaded in OS update section... may consider separating it.
-
-#Nix Bench
-wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
-wget -N http://forums.servethehome.com/pjk/fix-limitation.patch 
-
-#C-ray
-wget -N http://www.futuretech.blinkenlights.nl/depot/c-ray-1.1.tar.gz
-
-# STREAM by Dr. John D. McCalpin
-wget -N http://www.cs.virginia.edu/stream/FTP/Code/stream.c
-
-# OpenSSL
-wget -N http://www.openssl.org/source/openssl-1.0.1g.tar.gz
-
-# redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
-wget http://download.redis.io/redis-stable.tar.gz
-wget http://forums.servethehome.com/pjk/6379.conf
-
-# NPB Benchmarks (need to add remove script)
-wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
-
-#NAMD
-wget http://forums.servethehome.com/pjk/NAMD_2.9_Linux-x86_64-multicore.tar.gz
-wget http://forums.servethehome.com/pjk/apoa1.tar.gz
-}
-
 
 #########	Run Benchmarks	###############
 runBenches()
@@ -321,6 +289,8 @@ runBenches()
 	{
 	cd $benchdir
 	echo "Building UnixBench"
+wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
+wget -N http://forums.servethehome.com/pjk/fix-limitation.patch 
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
@@ -329,7 +299,6 @@ runBenches()
 	patch Run fix-limitation.patch
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
-	cd ..
 	rm -rf UnixBench*
 	}
 
@@ -337,8 +306,16 @@ runBenches()
 	cray()
 	{
 	cd $benchdir
+	
+	appbase=c-ray-1.1
+	apptgz=c-ray-1.1.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/c-ray-mt
+	appdlpath=http://www.futuretech.blinkenlights.nl/depot/$apptgz
+	extract
+	
 	echo "Running C-Ray test"
-	tar -zxf c-ray-1.1.tar.gz && cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && \
+	cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && \
 	cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cd ..
 	rm -rf c-ray-1.1*
 	}
@@ -369,6 +346,13 @@ runBenches()
 	{
 	cd $benchdir
 	echo "Building STREAM"
+
+	if [ -e stream.c ] ; then
+	echo "Stream downloaded"
+	else
+		wget -N http://www.cs.virginia.edu/stream/FTP/Code/stream.c
+	fi
+
 	gcc stream.c -O3 -march=native -fopenmp -o stream-me
 
 	# Determine number of physical cores (not hyperthread) and set OMP to cores value
@@ -389,7 +373,14 @@ runBenches()
 	OSSL()
 	{
 	cd $benchdir
-	tar -zxvf openssl-1.0.1g.tar.gz 2>&1 >> /dev/null
+	
+	appbase=openssl-1.0.1g
+	apptgz=openssl-1.0.1g.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/apps/openssl
+	appdlpath=http://www.openssl.org/source/$apptgz
+	extract
+
 	cd openssl-1.0.1g/
 	echo "Building OpenSSL"
 	./config no-zlib 2>&1 >> /dev/null
@@ -437,9 +428,10 @@ runBenches()
 	{
 	cd $benchdir
 	echo "Building Redis"
-   	#wget http://download.redis.io/redis-stable.tar.gz
+
+   	wget http://download.redis.io/redis-stable.tar.gz
    	tar xzf redis-stable.tar.gz && cd redis-stable && make install
-   	#wget http://forums.servethehome.com/pjk/6379.conf
+   	wget http://forums.servethehome.com/pjk/6379.conf
    	[[ -d /etc/redis ]] || ( mkdir /etc/redis && cp $benchdir/6379.conf /etc/redis/6379.conf )
 
    	cp utils/redis_init_script /etc/init.d/redis_6379
@@ -492,8 +484,13 @@ runBenches()
 	NPB()
 	{
 	cd $benchdir
-	#wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
-	tar -zxvf NPB3.3.1.tar.gz
+
+	apptgz=NPB3.3.1.tar.gz
+	appbin=NPB3.3.1/NPB3.3-OMP
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	tgzstring=xfz
+	extract
+	
 	cd NPB3.3.1/NPB3.3-OMP/
 	echo "Building NPB"
 
@@ -531,12 +528,24 @@ runBenches()
 	# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
 	NAMD()
 	{
-	cd $benchdir
-	cores=$(grep "processor" /proc/cpuinfo | wc -l)
-
 	echo "Building NAMD"
-	tar xvfz NAMD_2.9_Linux-x86_64-multicore.tar.gz 
-	tar xvfz apoa1.tar.gz
+	cd $benchdir
+
+	appbase=NAMD_2.9_Linux-x86_64-multicore
+	apptgz=NAMD_2.9_Linux-x86_64-multicore.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/namd2
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	extract
+	
+	appbase=apoa1
+	apptgz=apoa1.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/apoa1.pdb
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	extract
+
+	cores=$(grep "processor" /proc/cpuinfo | wc -l)
 
 	echo "Using" $cores "threads"
 	echo "Running NAMD benchmark... (will take a while)"
@@ -552,14 +561,16 @@ runBenches()
 	p7zip()
 	{
 	cd $benchdir
-	if [ ! -e p7zip_9.20.1_src_all.tar.bz2 ]
- 		then
-		wget https://dl.dropboxusercontent.com/u/124184/p7zip_9.20.1_src_all.tar.bz2
-	fi
+
+	appbase=p7zip_9.20.1
+	apptgz=p7zip_9.20.1_src_all.tar.bz2
+	tgzstring=xfj
+	appbin=p7zip_9.20.1/bin/7za
+	appdlpath=https://dl.dropboxusercontent.com/u/124184/$apptgz
+	extract
 
 	echo "Building p7zip"
-	tar xvfj p7zip_9.20.1_src_all.tar.bz2
-	cd p7zip_9.20.1
+	cd $appbase
 	make -j 2>&1 >> /dev/null
 
 	echo "Starting 7zip benchmark, this will take a while"
@@ -573,7 +584,6 @@ runBenches()
 	
 	rm -rf p7zip*
 	}
-		
 
 	#Individual modules run below...comment them out to prevent them from running.
 	
@@ -597,7 +607,7 @@ runBenches()
 	time red
 	echo "NPB"
 	time NPB
-	echo "NAMD"
+	echo "NAMD" 
 	time NAMD
 	echo "p7zip"
 	time p7zip
@@ -646,11 +656,7 @@ benchlog
 echo "derpinfo"
 sysinfo  exiting on sysinfo...
 sysinfo
-echo "dlBenches"
-dlBenches
 echo "run benches"
 runBenches
 echo "Uninstall benches"
 echo "done"
-
-#The end, thanks for playing.
