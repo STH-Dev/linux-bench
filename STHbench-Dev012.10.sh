@@ -247,6 +247,20 @@ echo ${OSSTR}
 }
 
 
+extract()
+{
+	if [ -e ./$appbin ] ; then
+		echo "$appname installed"
+	elif [ -e ./$apptgz ] ; then
+		tar $tgzstring $apptgz
+	else
+		wget $appdlpath
+		tar $tgzstring $apptgz
+	fi
+}
+
+
+
 #System information and log capture.
 sysinfo()
 {
@@ -488,8 +502,14 @@ runBenches()
 	NPB()
 	{
 	cd $benchdir
-	#wget http://forums.servethehome.com/pjk/NPB3.3.1.tar.gz
-	tar -zxvf NPB3.3.1.tar.gz
+
+
+	apptgz=NPB3.3.1.tar.gz
+	appbin=NPB3.3.1/NPB3.3-OMP
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	tgzstring=xfz
+	extract
+	
 	cd NPB3.3.1/NPB3.3-OMP/
 	echo "Building NPB"
 
@@ -530,26 +550,20 @@ runBenches()
 	echo "Building NAMD"
 	cd $benchdir
 
-	NAMDbase=NAMD_2.9_Linux-x86_64-multicore
 
-	if [ -e ./$NAMDbase/namd2 ] ; then 
-		echo "NAMD Installed"
-	elif [ -e $NAMDbase.tar.gz ] ; then 
-		tar xvfz $NAMDbase.tar.gz 
-	else
-		wget http://forums.servethehome.com/pjk/$NAMDbase.tar.gz
-                tar xvfz $NAMDbase.tar.gz
-	fi
-
-	APOAbase=apoa1
-	if [ -e ./$APOAbase/apoa1.pdb ]; then 
-		echo "APOA1 Installed"
-	elif [ -e $APOAbase.tar.gz ] ; then 
-		tar xvfz $APOAbase.tar.gz
-	else
-		wget http://forums.servethehome.com/pjk/$APOAbase.tar.gz 
-		tar xvfz $APOAbase.tar.gz
-	fi
+	appbase=NAMD_2.9_Linux-x86_64-multicore
+	apptgz=NAMD_2.9_Linux-x86_64-multicore.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/namd2
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	extract
+	
+	appbase=apoa1
+	apptgz=apoa1.tar.gz
+	tgzstring=xfz
+	appbin=$appbase/apoa1.pdb
+	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	extract
 
 	cores=$(grep "processor" /proc/cpuinfo | wc -l)
 
@@ -568,19 +582,15 @@ runBenches()
 	{
 	cd $benchdir
 
-	p7zipbase=p7zip_9.20.1
-
-	if [ -e ./$p7zipbase/bin/7za ] ; then
-		echo "p7zip installed"
-	elif [ -e $p7zipbase\_src_all.tar.bz2 ] ; then
-		tar xvfj $p7zipbase\_src_all.tar.bz2
-	else
-		wget https://dl.dropboxusercontent.com/u/124184/$p7zipbase\_src_all.tar.bz2
-		tar xvfj $p7zipbase\_src_all.tar.bz2
-	fi
+	appbase=p7zip_9.20.1
+	apptgz=p7zip_9.20.1_src_all.tar.bz2
+	tgzstring=xfj
+	appbin=p7zip_9.20.1/bin/7za
+	appdlpath=https://dl.dropboxusercontent.com/u/124184/$apptgz
+	extract
 
 	echo "Building p7zip"
-	cd $p7zipbase
+	cd $appbase
 	make -j 2>&1 >> /dev/null
 
 	echo "Starting 7zip benchmark, this will take a while"
@@ -599,29 +609,29 @@ runBenches()
 	#Individual modules run below...comment them out to prevent them from running.
 	
 	echo "hardinfo"  
-	time hardi
+#	time hardi
 	echo "ubench"
-	time ubench
+#	time ubench
 	echo "cray"
-	time cray
+#	time cray
 #	echo "PTS"
 #	PTS
 	echo "stream"
-	time stream
+#	time stream
 	echo "OSSL"
-	time OSSL  
+#	time OSSL  
 #	echo "crafty"
 #	crafty
 	echo "sysbench"
-	time sysb 
+#	time sysb 
 	echo "redis"
-	time red
+#	time red
 	echo "NPB"
-	time NPB
-	echo "NAMD"
-	time NAMD
+#	time NPB
+	echo "NAMD" 
+#	time NAMD
 	echo "p7zip"
-	time p7zip
+#	time p7zip
 }
 
 
@@ -661,14 +671,14 @@ setup
 echo "whichdistro"
 whichdistro
 echo "dlDep"
-dlDependancies
+#dlDependancies
 echo "benchlog"
 benchlog
 echo "derpinfo"
 sysinfo  exiting on sysinfo...
 sysinfo
 echo "dlBenches"
-dlBenches
+#dlBenches
 echo "run benches"
 runBenches
 echo "Uninstall benches"
