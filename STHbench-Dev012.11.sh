@@ -317,8 +317,14 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	
 	threads=$(grep "processor" /proc/cpuinfo | wc -l)
 	echo "Running C-Ray test"
-	cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && \
-	cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cat sphfract | ./c-ray-mt -t threads -s 3840x2160 -r 8 > foo.ppm && cd ..
+	cd c-ray-1.1 && make
+	echo "c-ray Easy Test"
+	cat scene | ./c-ray-mt -t $threads -s 7500x3500 > foo.ppm 
+	echo "c-ray Medium Test"
+	cat sphfract | ./c-ray-mt -t $threads -s 1920x1200 -r 8 > foo.ppm
+	echo "c-ray Hard Test"
+	cat sphfract | ./c-ray-mt -t $threads -s 3840x2160 -r 8 > foo.ppm 
+	cd ..
 	rm -rf c-ray-1.1*
 	}
 
