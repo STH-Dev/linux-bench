@@ -315,9 +315,10 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	appdlpath=http://www.futuretech.blinkenlights.nl/depot/$apptgz
 	extract
 	
+	threads=$(grep "processor" /proc/cpuinfo | wc -l)
 	echo "Running C-Ray test"
 	cd c-ray-1.1 && make && cat scene | ./c-ray-mt -t 32 -s 7500x3500 > foo.ppm | tee c-ray1.txt && \
-	cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cat sphfract | ./c-ray-mt -t cores=$(grep "processor" /proc/cpuinfo | wc -l) -s 3840x2160 -r 8 > foo.ppm && cd ..
+	cat sphfract | ./c-ray-mt -t 32 -s 1920x1200 -r 8 > foo.ppm && cat sphfract | ./c-ray-mt -t threads -s 3840x2160 -r 8 > foo.ppm && cd ..
 	rm -rf c-ray-1.1*
 	}
 
