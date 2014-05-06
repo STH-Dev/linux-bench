@@ -54,6 +54,7 @@ cat << EOF
 			Added: time in front of each test
 			Modified: Cleaned up installers - NAMD, p7zip
 	* 12.11 Modified: Moved all installers into new install routine and localized the install.
+		Fixed: Redis - cleaned up logic to make it run
 
 
 EOF
@@ -437,15 +438,15 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	cd $benchdir
 	echo "Building Redis"
 
-   	wget http://download.redis.io/redis-stable.tar.gz
-   	tar xzf redis-stable.tar.gz && cd redis-stable && make install
-   	wget http://forums.servethehome.com/pjk/6379.conf
-   	[[ -d /etc/redis ]] || ( mkdir /etc/redis && cp $benchdir/6379.conf /etc/redis/6379.conf )
+wget http://download.redis.io/redis-stable.tar.gz
+        tar xzf redis-stable.tar.gz && cd redis-stable && make install
+        cp utils/redis_init_script /etc/init.d/redis_6379
+        mkdir -p /var/redis/6379
+wget http://forums.servethehome.com/pjk/6379.conf
+        mkdir -p /etc/redis
+        cp ./6379.conf /etc/redis
 
-   	cp utils/redis_init_script /etc/init.d/redis_6379
-   	[[ -d /var/redis ]] || ( mkdir /var/redis && mkdir /var/redis/6379 )
-
-   	service redis_6379 start
+        service redis_6379 start
 
    	# Original redis benchmark set/ get test
 
