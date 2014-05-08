@@ -425,10 +425,10 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	{
 	cd $benchdir
    	echo "Running sysbench CPU Single Thread"
-   	sysbench --test=cpu --cpu-max-prime=300000 run
+   	sysbench --test=cpu --cpu-max-prime=30000 run
    	echo "Running sysbench CPU Multi-Threaded"
    	nproc=`nproc`
-   	sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=500000 run
+   	sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=300000 run
 	}
 
 
