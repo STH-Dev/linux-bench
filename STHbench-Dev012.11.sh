@@ -456,7 +456,7 @@ wget http://forums.servethehome.com/pjk/6379.conf
    	BIN=redis-benchmark
 
    	payload=32
-   	iterations=20000
+   	iterations=10000
    	keyspace=100000
 
    	for clients in 1 5 10 25 50 75 100
