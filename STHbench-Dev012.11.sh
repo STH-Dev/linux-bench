@@ -456,10 +456,10 @@ wget http://forums.servethehome.com/pjk/6379.conf
    	BIN=redis-benchmark
 
    	payload=32
-   	iterations=100000
+   	iterations=20000
    	keyspace=100000
 
-   	for clients in 1 5 10 20 30 40 50 60 70 80 90 100
+   	for clients in 1 5 10 25 50 75 100
    	do
 	   	SPEED=0
 		for dummy in 0 1 2
