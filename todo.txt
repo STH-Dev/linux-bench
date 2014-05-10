@@ -1,0 +1,14 @@
+#Future ideas/plans/hopes/dreams
+
+#Header needs work... read it and you will see.
+#proxy configuration either prompted or just hardcoded per run.
+# gui menu, yeah I am dreaming...
+# work dir 
+# separate downloads from benchmark runs.
+# log file as STHBench_hostname_timestamp.log
+# Run options 
+# proxy variables maybe...
+# upload options...
+# separate or included results parsing script.
+# add error checking on downloads...
+# Else options for runtime... currently do nothing
