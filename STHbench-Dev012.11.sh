@@ -512,27 +512,27 @@ runBenches()
 echo ${iterations:=1} passes
 	while [ $iterations -gt 0 ] ; do
 		echo "hardinfo"  
-#		time hardi
+		time hardi
 		echo "ubench"
-#		time ubench
+		time ubench
 		echo "cray"
-#		time cray
+		time cray
 		echo "stream"
-#		time stream
+		time stream
 		echo "OSSL"
-#		time OSSL  
+		time OSSL  
 	#       echo "crafty"
 	#       crafty
 		echo "sysbench"
-#		time sysb 
+		time sysb 
 		echo "redis"
-#		time red
+		time red
 		echo "NPB"
-#		time NPB
+		time NPB
 		echo "NAMD" 
-#		time NAMD
+		time NAMD
 		echo "p7zip"
-#		time p7zip
+		time p7zip
 		let iterations-=1
 	done
 	
