@@ -13,6 +13,9 @@
 #
 # 	Authors: Patrick Kennedy, nitrobass24, mir, Chuckleb, Patriot 
 #
+#
+#	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/STHbench.sh
+#
 #   If you find bugs, verify you are on the latest version and then post in:
 #	http://forums.servethehome.com/index.php?threads/introducing-the-sthbench-sh-benchmark-script.2519/
 #
@@ -20,62 +23,6 @@
 
 #Current Version
 rev='12.11'
-
-
-revhist()
-{
-cat << EOF
-	* 1.0 Intial release.
-	* 2.0 Added: sysbench (CPU test, redis), Removed apt-get spam(1k lines), Added CentOS support
-	* 3.0 Fixed: OS detection for Ubuntu including development/ daily builds)
-	* 4.0 Fixed: redis-benchmark issue under some OSes and adds a 6379.conf file for the benchmark
-	* 5.0 Fixed: Debian install and redis.
-	* 6.0 Fixed: Installer.  Now redis-server shuts down after benchmarking is complete.
-	* 7.0 Added: root check, removal code for benchmarks. Updated: Debian installation.
-	* 8.0 Added: STREAM, OpenSSL, unzip,crafty benchmarks and lscpu logging.  
-	      Updated: lowered prime problem size for sysbench.
-	* 9.0 Nothing according to diff...
-	* 10.0 Added: NAMD benchmark.  Updated: STREAM benchmark (non-PTS) (I don't see it changed)
-	* 11.0 Deprecated crafty benchmark, too single threaded.
-	* 12.0 Modularized neatened. 
-	* 12.01 Fixed: SLES OS detection. Added: revhist, version, modules and a proper header.
-	* 12.02 Seperated Benchmark Download from Runtime.
-	* 12.03 Fixed: broken link to apoa1.tar.gz
-	* 12.04 Added: Menu, flags: hVR.  Which call: help, Version, Revision History.
-	* 12.05 Updated: OpenSSL to latest revision free of heartbleed.
-	* 12.06 Fixed: redis config in wrong directory. 
-	* 12.07 Fixed: Detection of lscpu for Ubuntu. 
-		Added: Detect Docker environment to skip updates/installs
-	* 12.08 Fixed: Removed PTS from standard run to cover heartbleed bug.   
-		Added: OSSL multi threaded support to replace PTS, lscpu also run without flags.
-	* 12.09 Added: p7zip
-	* 12.10 Fixed: OpenSSL
-			Moved: Cleanup functions within each test
-			Added: time in front of each test
-			Modified: Cleaned up installers - NAMD, p7zip
-	* 12.11 Modified: Moved all installers into new install routine and localized the install.
-		Fixed: Redis - cleaned up logic to make it run
-
-
-EOF
-
-#exit 1
-#Future ideas/plans/hopes/dreams
-
-#Header needs work... read it and you will see.
-#proxy configuration either prompted or just hardcoded per run.
-# gui menu, yeah I am dreaming...
-# work dir 
-# separate downloads from benchmark runs.
-# log file as STHBench_hostname_timestamp.log
-# Run options 
-# proxy variables maybe...
-# upload options...
-# separate or included results parsing script.
-# add error checking on downloads...
-# Else options for runtime... currently do nothing
-}
-
 
 version()
 {
@@ -110,7 +57,6 @@ OPTIONAL ARGS:
 OPTIONS:
 	-h	help (usage info)
     	-V	Version of STHbench
-	-R	Revision history
 
 EOF
 }
@@ -126,7 +72,8 @@ rootcheck()
 	fi
 }
 
-#############Set Functions################
+
+#Set Functions
 setup()
 {
 	benchdir=`pwd`
@@ -144,25 +91,19 @@ setup()
 # Update and install required packages (Debian)
 Update_Install_Debian()
 {
-	apt-get -y update && apt-get -y upgrade && apt-get install -f
 	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
-	apt-get install -f
 	mkdir -p /usr/tmp/
-#	dpkg -s phoronix-test-suite 2>&1 > /dev/null 2>&1
-#	NEED_PTS=$(echo $?)
-#	if [ $NEED_PTS > 0 ]; then
-#		wget -N http://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_4.8.6_all.deb && dpkg -i phoronix-test-suite_4.8.6_all.deb
-#	fi
 }
+
 
 # Update and install required packages (CentOS/RHEL)
 Update_Install_RHEL()
 {
 	rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 	rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-	yum -y update && yum -y upgrade
-	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran #phoronix-test-suite
+	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran
 }
+
 
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
 whichdistro() 
@@ -219,11 +160,10 @@ whichdistro()
 }
 
 
-##########	Update and install required packages	###########
+# Update and install required packages
 dlDependancies()
 {
 # Test to see if $DOCKER has been defined. Those building DockerFiles can set DOCKER=TRUE to bypass installing/updates.
-
 	if [ "${DOCKER}" = "TRUE" ] ; then
 	echo "In a Docker container, no updates run."
 	elif [ "${DIST}" = "CentOS" ] ; then
@@ -234,6 +174,7 @@ dlDependancies()
 	Update_Install_Debian
 	fi
 }
+
 
 # Display script output and append to log
 benchlog()
@@ -257,7 +198,6 @@ extract()
 }
 
 
-
 #System information and log capture.
 sysinfo()
 {
@@ -271,27 +211,22 @@ sysinfo()
 	fi
 }
 
-#########	Run Benchmarks	###############
-runBenches()
+
+# HardInfo
+hardi()
 {
-
-#You can turn off individual benches at the bottom of this module.
-
-	# HardInfo
-	hardi()
-	{
 	cd $benchdir
 	echo "Running HardInfo test"
 	hardinfo --generate-report --report-format text 
-	}
+}
 
-	# UnixBench 5.1.3
-	ubench()
-	{
+# UnixBench 5.1.3
+ubench()
+{
 	cd $benchdir
 	echo "Building UnixBench"
-wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
-wget -N http://forums.servethehome.com/pjk/fix-limitation.patch 
+	wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
+	wget -N http://forums.servethehome.com/pjk/fix-limitation.patch 
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
@@ -302,11 +237,11 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
 	cd ..
 	rm -rf UnixBench*
-	}
+}
 
-	# C-Ray 1.1
-	cray()
-	{
+# C-Ray 1.1
+cray()
+{
 	cd $benchdir
 	
 	appbase=c-ray-1.1
@@ -327,37 +262,16 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	cat sphfract | ./c-ray-mt -t $threads -s 3840x2160 -r 8 > foo.ppm 
 	cd ..
 	rm -rf c-ray-1.1*
-	}
+}
 
-#	# Phoronix Test Suite
-#	PTS()
-#	{
-#	
-#	expect <<EOD
-#	set timeout -1
-#	spawn -noecho phoronix-test-suite batch-setup
-#	expect {
-#	"Do you agree to these terms and wish to proceed (Y/n):" { send "y\n"; exp_continue }
-#	"Enable anonymous usage / statistics reporting (Y/n):" { send "n\n"; exp_continue }
-#	"Enable anonymous statistical reporting of installed software / hardware (Y/n):" { send "n\n"; exp_continue }	
-#
-#	"Run all test options (Y/n):" { send "y\n"; exp_continue }
-#	"Save test results when in batch mode (Y/n):" { send "n\n"; exp_continue }
-#	}
-#EOD
-#	phoronix-test-suite batch-benchmark pts/stream pts/compress-7zip pts/openssl pts/pybench
-# [ "$NEED_PTS" > "0" -a "$DIST" = "Debian" ] && apt-get -y --purge remove phoronix-test-suite && rm -f phoronix-test-suite_4.8.6_all.deb
-#}
-
-
-	# STREAM by Dr. John D. McCalpin
-	stream()
-	{
+# STREAM by Dr. John D. McCalpin
+stream()
+{
 	cd $benchdir
 	echo "Building STREAM"
 
 	if [ -e stream.c ] ; then
-	echo "Stream downloaded"
+		echo "Stream downloaded"
 	else
 		wget -N http://www.cs.virginia.edu/stream/FTP/Code/stream.c
 	fi
@@ -375,12 +289,11 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 
 	echo "Running STREAM test"
 	./stream-me
-	}
+}
 
-
-	# OpenSSL
-	OSSL()
-	{
+# OpenSSL
+OSSL()
+{
 	cd $benchdir
 	
 	appbase=openssl-1.0.1g
@@ -399,11 +312,10 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
 	./apps/openssl speed rsa4096 -multi ${nproc}
 
 	rm -rf openssl*
-	}
+}
 
-
- 	crafty()
- 	{
+crafty()
+{
 	cd $benchdir
    	wget -N http://www.craftychess.com/crafty-23.4.zip
    	unzip -o crafty-23.4.zip
@@ -416,63 +328,63 @@ wget -N http://forums.servethehome.com/pjk/fix-limitation.patch
    	chmod +x crafty
    	./crafty bench end
 	rm -rf crafty-23.4*
- 	}
+}
 
 
 
-	# sysbench CPU test prime
-	sysb()
-	{
+# sysbench CPU test prime
+sysb()
+{
 	cd $benchdir
    	echo "Running sysbench CPU Single Thread"
    	sysbench --test=cpu --cpu-max-prime=30000 run
    	echo "Running sysbench CPU Multi-Threaded"
    	nproc=`nproc`
    	sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=300000 run
-	}
+}
 
 
-	# redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
-	red()
-	{
+# redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
+red()
+{
 	cd $benchdir
 	echo "Building Redis"
 
-wget http://download.redis.io/redis-stable.tar.gz
-        tar xzf redis-stable.tar.gz && cd redis-stable && make install
-        cp utils/redis_init_script /etc/init.d/redis_6379
-        mkdir -p /var/redis/6379
-wget http://forums.servethehome.com/pjk/6379.conf
-        mkdir -p /etc/redis
-        cp ./6379.conf /etc/redis
+	wget http://download.redis.io/redis-stable.tar.gz
+	tar xzf redis-stable.tar.gz && cd redis-stable && make install
+	cp utils/redis_init_script /etc/init.d/redis_6379
+	mkdir -p /var/redis/6379
+	wget http://forums.servethehome.com/pjk/6379.conf
+	mkdir -p /etc/redis
+	cp ./6379.conf /etc/redis
 
-        service redis_6379 start
+	service redis_6379 start
 
    	# Original redis benchmark set/ get test
 
 	echo "Running Redis test"
-   	redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
+	redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
 
-   	BIN=redis-benchmark
+	BIN=redis-benchmark
 
-   	payload=32
-   	iterations=10000
-   	keyspace=100000
+	payload=32
+	iterations=10000
+	keyspace=100000
 
-   	for clients in 1 5 10 25 50 75 100
-   	do
-	   	SPEED=0
+	for clients in 1 5 10 25 50 75 100
+	do
+		SPEED=0
 		for dummy in 0 1 2
-		do
-			S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
-			VALUE=$(echo $S | awk '{printf "%.0f",$1}')
-			if [ $(($VALUE > $SPEED)) != 0 ]
-				then
+			do
+				S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
+				VALUE=$(echo $S | awk '{printf "%.0f",$1}')
+				if [ $(($VALUE > $SPEED)) != 0 ]
+					then
 					SPEED=$VALUE
 				fi
 			done
-			echo "$clients $SPEED"
-		done
+		echo "$clients $SPEED"
+	done
 
 	redis-cli shutdown
 
@@ -486,12 +398,12 @@ wget http://forums.servethehome.com/pjk/6379.conf
 	rm -f /usr/local/bin/redis-server
 	rm -f redis-stable.tar.gz
 	rm -rf redis-stable
-	}
+}
 
 
-	# NPB Benchmarks
-	NPB()
-	{
+# NPB Benchmarks
+NPB()
+{
 	cd $benchdir
 
 	apptgz=NPB3.3.1.tar.gz
@@ -531,12 +443,12 @@ wget http://forums.servethehome.com/pjk/6379.conf
 	bin/bt.A.x
 	bin/ft.A.x
 	rm -rf NPB3.3.1*
-	}
+}
 
 
-	# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
-	NAMD()
-	{
+# NAMD Benchmark http://www.ks.uiuc.edu/Research/namd/performance.html
+NAMD()
+{
 	echo "Building NAMD"
 	cd $benchdir
 
@@ -564,11 +476,11 @@ wget http://forums.servethehome.com/pjk/6379.conf
 
 	echo "Time per step" $timeperstep
 	rm -rf NAMD* apoa1*
-	}
+}
     
-	# p7zip
-	p7zip()
-	{
+# p7zip
+p7zip()
+{
 	cd $benchdir
 
 	appbase=p7zip_9.20.1
@@ -592,9 +504,11 @@ wget http://forums.servethehome.com/pjk/6379.conf
 	echo "Decompress speed (MIPS):" $decompressmips
 	
 	rm -rf p7zip*
-	}
+}
 
-	#Individual modules run below...comment them out to prevent them from running.
+runBenches()
+{	
+#Individual modules run below...comment them out to prevent them from running.
 	
 	echo "hardinfo"  
 	time hardi
@@ -602,14 +516,12 @@ wget http://forums.servethehome.com/pjk/6379.conf
 	time ubench
 	echo "cray"
 	time cray
-#	echo "PTS"
-#	PTS
 	echo "stream"
 	time stream
 	echo "OSSL"
 	time OSSL  
-#	echo "crafty"
-#	crafty
+#       echo "crafty"
+#       crafty
 	echo "sysbench"
 	time sysb 
 	echo "redis"
@@ -628,6 +540,8 @@ wget http://forums.servethehome.com/pjk/6379.conf
 # 	This is where a menu would go for runtime options...
 #
 
+main()
+{	
 rootcheck
 
 while getopts "hVR" arg; do
@@ -640,10 +554,6 @@ while getopts "hVR" arg; do
 	version
 	exit 1
 	;;
-	R)
-	revhist
-	exit 1
-	;;
 	\?)
      	usage
 	exit 1
@@ -651,21 +561,24 @@ while getopts "hVR" arg; do
   esac
 done
 
-#revhist
-echo "version"
-version
-echo "setup"
-setup
-echo "whichdistro"
-whichdistro
-echo "dlDep"
-dlDependancies
-echo "benchlog"
-benchlog
-echo "derpinfo"
-sysinfo  exiting on sysinfo...
-sysinfo
-echo "run benches"
-runBenches
-echo "Uninstall benches"
-echo "done"
+	echo "version"
+	version
+	echo "setup"
+	setup
+	echo "whichdistro"
+	whichdistro
+	echo "dlDep"
+	dlDependancies
+	echo "benchlog"
+	benchlog
+	echo "derpinfo"
+	sysinfo  exiting on sysinfo...
+	sysinfo
+	echo "run benches"
+	runBenches
+	echo "Uninstall benches"
+	echo "done"
+}
+
+# Execute everything in the script
+main
