@@ -509,31 +509,34 @@ p7zip()
 runBenches()
 {	
 #Individual modules run below...comment them out to prevent them from running.
+echo ${iterations:=1} passes
+	while [ $iterations -gt 0 ] ; do
+		echo "hardinfo"  
+#		time hardi
+		echo "ubench"
+#		time ubench
+		echo "cray"
+#		time cray
+		echo "stream"
+#		time stream
+		echo "OSSL"
+#		time OSSL  
+	#       echo "crafty"
+	#       crafty
+		echo "sysbench"
+#		time sysb 
+		echo "redis"
+#		time red
+		echo "NPB"
+#		time NPB
+		echo "NAMD" 
+#		time NAMD
+		echo "p7zip"
+#		time p7zip
+		let iterations-=1
+	done
 	
-	echo "hardinfo"  
-	time hardi
-	echo "ubench"
-	time ubench
-	echo "cray"
-	time cray
-	echo "stream"
-	time stream
-	echo "OSSL"
-	time OSSL  
-#       echo "crafty"
-#       crafty
-	echo "sysbench"
-	time sysb 
-	echo "redis"
-	time red
-	echo "NPB"
-	time NPB
-	echo "NAMD" 
-	time NAMD
-	echo "p7zip"
-	time p7zip
 }
-
 
 #	Runtime  This is where everything is actually run from and called...
 #
