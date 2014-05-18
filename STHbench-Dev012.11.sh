@@ -82,6 +82,9 @@ setup()
 	date_str="+%Y_%m%d_%H%M%S"
 	full_date=`date $date_str`
 	host=$(hostname)
+	if [ "${DOCKER}" = "TRUE" ] ; then
+		log=/data/"STHbench"$rev"_"$host"_"$full_date.log
+	fi
 	log="STHbench"$rev"_"$host"_"$full_date.log
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
