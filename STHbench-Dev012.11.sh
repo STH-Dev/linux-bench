@@ -512,8 +512,8 @@ p7zip()
 runBenches()
 {	
 #Individual modules run below...comment them out to prevent them from running.
-echo ${iterations:=1} passes
-	while [ $iterations -gt 0 ] ; do
+#echo ${iterations:=1} passes
+#	while [ $iterations -gt 0 ] ; do
 		echo "hardinfo"  
 		time hardi
 		echo "ubench"
@@ -534,8 +534,8 @@ echo ${iterations:=1} passes
 		time NAMD
 		echo "p7zip"
 		time p7zip
-		let iterations-=1
-	done
+#		let iterations-=1
+#	done
 	
 }
 
