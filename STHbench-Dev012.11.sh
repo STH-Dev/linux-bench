@@ -82,10 +82,10 @@ setup()
 	date_str="+%Y_%m%d_%H%M%S"
 	full_date=`date $date_str`
 	host=$(hostname)
-	if [ "${DOCKER}" = "TRUE" ] ; then
+	log="STHbench"$rev"_"$host"_"$full_date.log
+	if [ -f /.dockerinit ] ; then
 		log=/data/"STHbench"$rev"_"$host"_"$full_date.log
 	fi
-	log="STHbench"$rev"_"$host"_"$full_date.log
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
 }
@@ -167,7 +167,7 @@ whichdistro()
 dlDependancies()
 {
 # Test to see if $DOCKER has been defined. Those building DockerFiles can set DOCKER=TRUE to bypass installing/updates.
-	if [ "${DOCKER}" = "TRUE" ] ; then
+	if [ -f /.dockerinit ] ; then
 	echo "In a Docker container, no updates run."
 	elif [ "${DIST}" = "CentOS" ] ; then
 	Update_Install_RHEL
@@ -524,8 +524,6 @@ echo ${iterations:=1} passes
 		time stream
 		echo "OSSL"
 		time OSSL  
-	#       echo "crafty"
-	#       crafty
 		echo "sysbench"
 		time sysb 
 		echo "redis"

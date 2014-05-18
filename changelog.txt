@@ -3,6 +3,7 @@
 		Modified: Cleaned up script to toally remove PTS
 		Created: todo.txt for items to do and changelog.txt to document changes
 		Added: Ability to loop by defining environment variable iterations.	Defaults to 1 if not defined.
+		Fixed: Used a better method to detect Docker
 12.10 	Fixed: OpenSSL
       	Moved: Cleanup functions within each test
 		Added: time in front of each test
