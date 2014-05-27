@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# This is just example code of looping code with user input.
+
+threads=$(grep "processor" /proc/cpuinfo | wc -l)
+cd c-ray-1.1 && make
+
+echo "How many loops should this run? "
+read loops
+        echo "Running C-Ray test"
+        echo "c-ray Easy Test"
+        
+count=1
+while [[ $count -le $loops ]]
+	do
+		cat scene | ./c-ray-mt -t $threads -s 7500x3500 > foo.ppm
+		(( count++ ))
+done
+        echo "c-ray Medium Test"
+		count=1
+while [[ $count -le $loops ]]
+	do
+        cat sphfract | ./c-ray-mt -t $threads -s 1920x1200 -r 8 > foo.ppm
+		(( count++ ))
+done
+        echo "c-ray Hard Test"
+		count=1
+while [[ $count -le $loops ]]
+	do
+        cat sphfract | ./c-ray-mt -t $threads -s 3840x2160 -r 8 > foo.ppm
+		(( count++ ))
+done
+        cd ..
+        rm -rf c-*
+
