@@ -239,7 +239,7 @@ ubench()
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
 	cd ..
-	rm -rf UnixBench*
+	
 }
 
 # C-Ray 1.1
@@ -264,7 +264,7 @@ cray()
 	echo "c-ray Hard Test"
 	cat sphfract | ./c-ray-mt -t $threads -s 3840x2160 -r 8 > foo.ppm 
 	cd ..
-	rm -rf c-ray-1.1*
+	
 }
 
 # STREAM by Dr. John D. McCalpin
@@ -314,7 +314,7 @@ OSSL()
    	nproc=`nproc`
 	./apps/openssl speed rsa4096 -multi ${nproc}
 
-	rm -rf openssl*
+	
 }
 
 crafty()
@@ -330,7 +330,7 @@ crafty()
    	make crafty-make
    	chmod +x crafty
    	./crafty bench end
-	rm -rf crafty-23.4*
+	
 }
 
 
@@ -391,16 +391,6 @@ red()
 
 	redis-cli shutdown
 
-	rm -rf /etc/redis
-	rm -f /etc/init.d/redis_6379
-	rm -rf /var/redis
-	rm -f /usr/local/bin/redis-benchmark
-	rm -f /usr/local/bin/redis-check-aof
-	rm -f /usr/local/bin/redis-check-dump
-	rm -f /usr/local/bin/redis-cli
-	rm -f /usr/local/bin/redis-server
-	rm -f redis-stable.tar.gz
-	rm -rf redis-stable
 }
 
 
@@ -445,7 +435,7 @@ NPB()
 	echo "Running NPB tests"
 	bin/bt.A.x
 	bin/ft.A.x
-	rm -rf NPB3.3.1*
+	
 }
 
 
@@ -478,7 +468,7 @@ NAMD()
 	timeperstep=$(./namd2 +p$cores +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
 
 	echo "Time per step" $timeperstep
-	rm -rf NAMD* apoa1*
+	
 }
     
 # p7zip
@@ -506,7 +496,7 @@ p7zip()
 	echo "Compress speed (MIPS):" $compressmips
 	echo "Decompress speed (MIPS):" $decompressmips
 	
-	rm -rf p7zip*
+
 }
 
 runBenches()
@@ -538,6 +528,31 @@ runBenches()
 #	done
 	
 }
+
+#	Remove Benches
+removeBenches()
+{
+	cd $benchdir
+	rm -rf UnixBench*
+	rm -rf c-ray-1.1*
+	# We do not have a remove STREAM
+	rm -rf openssl*
+	rm -rf crafty-23.4*
+	# We do not have a remove Sysbench
+	rm -rf /etc/redis
+	rm -f /etc/init.d/redis_6379
+	rm -rf /var/redis
+	rm -f /usr/local/bin/redis-benchmark
+	rm -f /usr/local/bin/redis-check-aof
+	rm -f /usr/local/bin/redis-check-dump
+	rm -f /usr/local/bin/redis-cli
+	rm -f /usr/local/bin/redis-server
+	rm -f redis-stable.tar.gz
+	rm -rf redis-stable
+	rm -rf NPB3.3.1*
+	rm -rf NAMD* apoa1*
+	rm -rf p7zip*
+}	
 
 #	Runtime  This is where everything is actually run from and called...
 #
@@ -581,6 +596,7 @@ done
 	echo "run benches"
 	runBenches
 	echo "Uninstall benches"
+	removeBenches
 	echo "done"
 }
 
