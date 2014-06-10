@@ -231,7 +231,7 @@ ubench()
 	cd $benchdir
 	echo "Building UnixBench"
 	wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
-	wget -N http://forums.servethehome.com/pjk/fix-limitation.patch 
+	wget -N http://linuxbench.servethehome.com/benchfiles/fix-limitation.patch 
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
@@ -359,7 +359,7 @@ red()
 	tar xzf redis-stable.tar.gz && cd redis-stable && make install
 	cp utils/redis_init_script /etc/init.d/redis_6379
 	mkdir -p /var/redis/6379
-	wget http://forums.servethehome.com/pjk/6379.conf
+	wget http://linuxbench.servethehome.com/benchfiles/6379.conf
 	mkdir -p /etc/redis
 	cp ./6379.conf /etc/redis
 
@@ -403,7 +403,7 @@ NPB()
 
 	apptgz=NPB3.3.1.tar.gz
 	appbin=NPB3.3.1/NPB3.3-OMP
-	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	tgzstring=xfz
 	extract
 	
@@ -451,14 +451,14 @@ NAMD()
 	apptgz=NAMD_2.9_Linux-x86_64-multicore.tar.gz
 	tgzstring=xfz
 	appbin=$appbase/namd2
-	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	extract
 	
 	appbase=apoa1
 	apptgz=apoa1.tar.gz
 	tgzstring=xfz
 	appbin=$appbase/apoa1.pdb
-	appdlpath=http://forums.servethehome.com/pjk/$apptgz
+	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	extract
 
 	cores=$(grep "processor" /proc/cpuinfo | wc -l)
