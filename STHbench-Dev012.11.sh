@@ -13,7 +13,7 @@
 #	For more information go:
 #	http://forums.servethehome.com/processors-motherboards/2519-introducing-sthbench-sh-benchmark-script.html
 #
-# 	Authors: Patrick Kennedy, Chuckleb, Patriot, nitrobass24, mir  
+# 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir  
 #
 #
 #	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/STHbench.sh
@@ -59,6 +59,10 @@ OPTIONAL ARGS:
 OPTIONS:
 	-h	help (usage info)
     	-V	Version of STHbench
+
+ENVIRONMENT VARIABLES:
+
+VIRTUAL = If unset, value is FALSE. Set to TRUE if running virtualized (automatically set for Docker)
 
 EOF
 }
@@ -168,9 +172,9 @@ whichdistro()
 # Update and install required packages
 dlDependancies()
 {
-# Test to see if $DOCKER has been defined. Those building DockerFiles can set DOCKER=TRUE to bypass installing/updates.
 	if [ -f /.dockerinit ] ; then
 	echo "In a Docker container, no updates run."
+	VIRTUAL="TRUE"
 	elif [ "${DIST}" = "CentOS" ] ; then
 	Update_Install_RHEL
 	elif [ "${DIST}" = "RedHat" ] ; then
@@ -214,6 +218,8 @@ sysinfo()
 	else 
 		lscpu;
 	fi
+	: ${VIRTUAL:=FALSE}
+	echo "VIRTUAL="$VIRTUAL
 }
 
 
