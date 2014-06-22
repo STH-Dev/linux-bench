@@ -6,11 +6,12 @@
 	crafty, redis, NPB, NAMD, and 7-zip benchmarks
 	
 	STHbench2 must be run as root or using a su prompt to automate download and installation of benchmarks
+	If running in a virtual environment, export VIRTUAL=TRUE before running. Automatically set for Docker.
 
 	For more information go:
 	http://forums.servethehome.com/processors-motherboards/2519-introducing-sthbench-sh-benchmark-script.html
 
- 	Authors: Patrick Kennedy, Chuckleb, Patriot, nitrobass24, mir  
+ 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir  
 
 
 	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/STHbench.sh
