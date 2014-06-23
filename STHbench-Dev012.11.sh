@@ -1,22 +1,21 @@
 #!/bin/bash
-#
-#	(C) 2013-2014 ServeTheHome.com and ServeThe.biz
-#		
-#
-# 	STHbench2- A System Benchmark and comparison tool created by the STH community.
-#
-#	STHbench2 is a sscript that runs hardinfo, Unixbench 5.1.3, c-ray 1.1, STREAM, OpenSSL, sysbench (CPU),
-#	crafty, redis, NPB, NAMD, and 7-zip benchmarks
 #	
-#	STHbench2 must be run as root or using a su prompt to automate download and installation of benchmarks
+#	Linux-Bench CPU Benchmark Script
+#	(C) 2013-2014 ServeTheHome.com and ServeThe.biz
+#
+# 	Linux-Bench - A System benchmark and comparison tool created by the STH community.
+#
+#	Linux-Bench is a sscript that runs hardinfo, Unixbench 5.1.3, c-ray 1.1, STREAM, OpenSSL, sysbench (CPU),
+#	crafty, redis, NPB, NAMD, and 7-zip benchmarks without manual intervention.
+#	
+#	Linux-Bench must be run as root or using a su prompt to automate download and installation of benchmarks
 #
 #	For more information go:
-#	http://forums.servethehome.com/processors-motherboards/2519-introducing-sthbench-sh-benchmark-script.html
+#	http://www.linux-bench.com
 #
 # 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir  
 #
-#
-#	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/STHbench.sh
+#	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/linux-bench/
 #
 #   	If you find bugs, verify you are on the latest version and then post in:
 #	http://forums.servethehome.com/index.php?threads/introducing-the-sthbench-sh-benchmark-script.2519/
@@ -32,8 +31,8 @@ cat << EOF
 ##############################################################
 #  (c) 2014 ServeTheHome.com and ServeThe.biz
 # 
-#	STHbench $rev
-#	- STH Benchmark Suite 
+#	Linux-Bench $rev
+#	- Linux-Bench the STH Benchmark Suite 
 ###############################################################
 
 EOF
