@@ -326,7 +326,7 @@ OSSL()
    	nproc=`nproc`
 	./apps/openssl speed rsa4096 -multi ${nproc}
 	
-	cd $basedir
+	cd $benchdir
 	rm -rf openssl*
 
 	
@@ -457,7 +457,7 @@ NPB()
 	bin/bt.A.x
 	bin/ft.A.x
 	
-	cd $basedir
+	cd $benchdir
 	rm -rf NPB*
 }
 
