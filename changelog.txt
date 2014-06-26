@@ -5,6 +5,7 @@
 		Fixed: Used a better method to detect Docker
 		Added: Checks for environment VIRTUAL and if unset, defaults to FALSE. Docker will set to "TRUE" 
 		and users should set to "TRUE" if running virtualized.
+		Added: detect for missing repos and install for Ubuntu
 12.10 	Fixed: OpenSSL
       	Moved: Cleanup functions within each test
 		Added: time in front of each test

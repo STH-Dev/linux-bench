@@ -99,8 +99,10 @@ setup()
 # Update and install required packages (Debian)
 Update_Install_Debian()
 {
+	apt-get update
 	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
 	mkdir -p /usr/tmp/
+	rm /etc/apt/sources.list.d/linuxbench.list
 }
 
 
@@ -155,6 +157,13 @@ whichdistro()
 			DIST="Debian"
 			PSUEDONAME=`cat /etc/debian_version`
 				REV=""
+			if [ `grep DISTRIB_ID= /etc/lsb-release | cut -d"=" -f2` = "Ubuntu" ] ; then
+				DIST="Ubuntu"
+				UBUNTU_RELEASE=`lsb_release -sc`
+				REPO1="deb http://us.archive.ubuntu.com/ubuntu/ "
+				REPO1END=" universe"
+				echo $REPO1 $UBUNTU_RELEASE $REPO1END > /etc/apt/sources.list.d/linuxbench.list
+			fi
 
 		elif [ -f /etc/UnitedLinux-release ] ; then
 			DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
@@ -178,7 +187,7 @@ dlDependancies()
 	Update_Install_RHEL
 	elif [ "${DIST}" = "RedHat" ] ; then
 	Update_Install_RHEL
-	elif [ "${DIST}" = "Debian" ] ; then
+	elif [ "${DIST}" = "Debian" ] || [ "${DIST}" = "Ubuntu" ] ; then
 	Update_Install_Debian
 	fi
 }
