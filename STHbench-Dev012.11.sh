@@ -245,7 +245,8 @@ ubench()
 	patch Run fix-limitation.patch
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
-	cd ..
+	cd $benchdir
+	rm -rf UnixBench* fix-limitation.patch
 	
 }
 
@@ -270,7 +271,8 @@ cray()
 	cat sphfract | ./c-ray-mt -t $threads -s 1920x1200 -r 8 > foo.ppm
 	echo "c-ray Hard Test"
 	cat sphfract | ./c-ray-mt -t $threads -s 3840x2160 -r 8 > foo.ppm 
-	cd ..
+	cd $benchdir
+	rm -rf $appbase*
 	
 }
 
@@ -299,6 +301,9 @@ stream()
 
 	echo "Running STREAM test"
 	./stream-me
+	
+	cd $benchdir
+	rm -rf stream-me stream.c
 }
 
 # OpenSSL
@@ -320,6 +325,9 @@ OSSL()
 	echo "Running OpenSSL test"
    	nproc=`nproc`
 	./apps/openssl speed rsa4096 -multi ${nproc}
+	
+	cd $basedir
+	rm -rf openssl*
 
 	
 }
@@ -337,6 +345,9 @@ crafty()
    	make crafty-make
    	chmod +x crafty
    	./crafty bench end
+	
+	cd $benchdir
+	rm -rf crafty*
 	
 }
 
@@ -397,6 +408,9 @@ red()
 	done
 
 	redis-cli shutdown
+	
+	cd $benchdir
+	rm -rf redis* /etc/redis /var/redis* /usr/local/bin/redis-* /etc/init.d/redis_*
 
 }
 
@@ -443,6 +457,8 @@ NPB()
 	bin/bt.A.x
 	bin/ft.A.x
 	
+	cd $basedir
+	rm -rf NPB*
 }
 
 
@@ -476,6 +492,9 @@ NAMD()
 
 	echo "Time per step" $timeperstep
 	
+	cd $benchdir
+	rm -rf NAMD* apoa1*
+	
 }
     
 # p7zip
@@ -502,6 +521,9 @@ p7zip()
 	
 	echo "Compress speed (MIPS):" $compressmips
 	echo "Decompress speed (MIPS):" $decompressmips
+	
+	cd $benchdir
+	rm -rf p7zip*
 	
 
 }
@@ -536,30 +558,7 @@ runBenches()
 	
 }
 
-#	Remove Benches
-removeBenches()
-{
-	cd $benchdir
-	rm -rf UnixBench*
-	rm -rf c-ray-1.1*
-	# We do not have a remove STREAM
-	rm -rf openssl*
-	rm -rf crafty-23.4*
-	# We do not have a remove Sysbench
-	rm -rf /etc/redis
-	rm -f /etc/init.d/redis_6379
-	rm -rf /var/redis
-	rm -f /usr/local/bin/redis-benchmark
-	rm -f /usr/local/bin/redis-check-aof
-	rm -f /usr/local/bin/redis-check-dump
-	rm -f /usr/local/bin/redis-cli
-	rm -f /usr/local/bin/redis-server
-	rm -f redis-stable.tar.gz
-	rm -rf redis-stable
-	rm -rf NPB3.3.1*
-	rm -rf NAMD* apoa1*
-	rm -rf p7zip*
-}	
+
 
 #	Runtime  This is where everything is actually run from and called...
 #
@@ -602,8 +601,6 @@ done
 	sysinfo
 	echo "run benches"
 	runBenches
-	echo "Uninstall benches"
-	removeBenches
 	echo "done"
 }
 

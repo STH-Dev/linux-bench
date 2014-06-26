@@ -2,7 +2,6 @@
 		Fixed: Redis - cleaned up logic to make it run, reduced	iterations to improve speed
 		Modified: Cleaned up script to toally remove PTS
 		Created: todo.txt for items to do and changelog.txt to document changes
-		Added: Ability to loop by defining environment variable iterations.	Defaults to 1 if not defined.
 		Fixed: Used a better method to detect Docker
 		Added: Checks for environment VIRTUAL and if unset, defaults to FALSE. Docker will set to "TRUE" 
 		and users should set to "TRUE" if running virtualized.
