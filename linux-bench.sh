@@ -45,7 +45,7 @@ cat << EOF
 
 usage: $0 
 
-This is the STH benchmark suite. 
+This is the Linux-Bench.com benchmark suite by ServeTheHome.com and ServeThe.Biz 
 
 ARGS:
         ARG1 - none required for now
@@ -57,7 +57,7 @@ OPTIONAL ARGS:
 
 OPTIONS:
 	-h	help (usage info)
-    	-V	Version of STHbench
+    	-V	Version of linux-bench
 
 ENVIRONMENT VARIABLES:
 
@@ -72,7 +72,7 @@ rootcheck()
 {
 	if [[ $EUID -ne 0 ]]; then
    		echo "This script must be run as root" 
-		echo "Ex. "sudo ./STHbench""
+		echo "Ex. "sudo ./linux-bench""
 		exit 1
 	fi
 }
@@ -87,9 +87,9 @@ setup()
 	date_str="+%Y_%m%d_%H%M%S"
 	full_date=`date $date_str`
 	host=$(hostname)
-	log="STHbench"$rev"_"$host"_"$full_date.log
+	log="linux-bench"$rev"_"$host"_"$full_date.log
 	if [ -f /.dockerinit ] ; then
-		log=/data/"STHbench"$rev"_"$host"_"$full_date.log
+		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
