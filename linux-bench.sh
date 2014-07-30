@@ -20,6 +20,8 @@
 #   	If you find bugs, verify you are on the latest version and then post in:
 #	http://forums.servethehome.com/index.php?threads/introducing-the-sthbench-sh-benchmark-script.2519/
 #
+#	To view your results, check the reference ID at the end of the log file generated. You can copy and paste
+#	the ID number here: http://199.195.128.138/ and see parsed results.
 ################################################################################################################################
 
 #Current Version
