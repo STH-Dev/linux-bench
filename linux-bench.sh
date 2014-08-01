@@ -62,7 +62,7 @@ OPTIONAL ARGS:
 
 OPTIONS:
 	-h	help (usage info)
-    	-V	Version of STHbench
+    	-V	Version of Linux-Bench
 
 ENVIRONMENT VARIABLES:
 
@@ -77,7 +77,7 @@ rootcheck()
 {
 	if [[ $EUID -ne 0 ]]; then
    		echo "This script must be run as root" 
-		echo "Ex. "sudo ./STHbench""
+		echo "Ex. "sudo ./linux-bench.sh""
 		exit 1
 	fi
 }
@@ -92,10 +92,10 @@ setup()
 	date_str="+%Y_%m%d_%H%M%S"
 	full_date=`date $date_str`
 	host=$(hostname)
-	log="STHbench"$rev"_"$host"_"$full_date.log
+	log="linux-bench"$rev"_"$host"_"$full_date.log
         LFN=$log
 	if [ -f /.dockerinit ] ; then
-		log=/data/"STHbench"$rev"_"$host"_"$full_date.log
+		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
         
 	#outdir=$host"_"$full_date
