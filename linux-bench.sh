@@ -93,10 +93,10 @@ setup()
 	full_date=`date $date_str`
 	host=$(hostname)
 	log="linux-bench"$rev"_"$host"_"$full_date.log
-        LFN=$log
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
+	LFN=$log
         
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
