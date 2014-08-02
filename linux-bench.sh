@@ -27,9 +27,6 @@
 #Current Version
 rev='12.12'
 
-#generated log filename
-LFN=""
-
 version()
 {
 cat << EOF
@@ -96,7 +93,6 @@ setup()
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
-	LFN=$log
         
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
@@ -623,8 +619,8 @@ done
 
 push_data() {
   ref=$(date +%S%d$i%s)
-  echo "ref_link: $ref" | tee -a $LFN
-  curl -F file=@$LFN http://199.195.128.138:3000/java-process/uploader
+  echo "ref_link: $ref" | tee -a $log
+  curl -F file=@$log http://199.195.128.138:3000/java-process/uploader
 }
 
 # Execute everything in the script
