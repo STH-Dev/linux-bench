@@ -107,7 +107,7 @@ setup()
 Update_Install_Debian()
 {
 	apt-get update
-	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran
+	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran curl
 	mkdir -p /usr/tmp/
 	rm /etc/apt/sources.list.d/linuxbench.list
 }
@@ -118,7 +118,7 @@ Update_Install_RHEL()
 {
 	rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 	rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran
+	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran curl
 }
 
 
