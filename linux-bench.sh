@@ -519,7 +519,7 @@ p7zip()
 	apptgz=p7zip_9.20.1_src_all.tar.bz2
 	tgzstring=xfj
 	appbin=p7zip_9.20.1/bin/7za
-	appdlpath=https://dl.dropboxusercontent.com/u/124184/$apptgz
+	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	extract
 
 	echo "Building p7zip"
