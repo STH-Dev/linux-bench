@@ -619,7 +619,7 @@ done
 
 push_data() {
   ref=$(date +%S%d$i%s)
-  echo "ref_link: $ref" | tee -a $log
+  echo "ref_link: $ref"
   curl -F file=@$log http://199.195.128.138:3000/java-process/uploader
 }
 
