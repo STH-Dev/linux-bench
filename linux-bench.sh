@@ -524,7 +524,7 @@ p7zip()
 
 	echo "Building p7zip"
 	cd $appbase
-	make -j 2>&1 >> /dev/null
+	make 2>&1 >> /dev/null
 
 	echo "Starting 7zip benchmark, this will take a while"
 	bin/7za b >> output.txt
