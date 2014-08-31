@@ -1,5 +1,6 @@
 12.12	Added: Upload script to submit results
-	Modified: Renamed script to linux-bench.sh
+		Modified: Renamed script to linux-bench.sh
+		Fixed: p7zip make command caused p7zip to hang, had a hanging -j
 12.11 	Modified: Moved all installers into new install routine and localized the install.
 		Fixed: Redis - cleaned up logic to make it run, reduced	iterations to improve speed
 		Modified: Cleaned up script to toally remove PTS
