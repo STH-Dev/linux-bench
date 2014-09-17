@@ -13,7 +13,7 @@
 #	For more information go:
 #	http://www.linux-bench.com
 #
-# 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir  
+# 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir, Frank DiDonato (LOGiCELL, Inc.)  
 #
 #	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/linux-bench/
 #
@@ -620,7 +620,10 @@ done
 push_data() {
   ref=$(date +%S%d$i%s)
   echo "ref_link: $ref"
-  curl -F file=@$log http://199.195.128.138:3000/java-process/uploader
+  mkdir tmpbench && cp $log tmpbench/.
+  sleep 1s
+  curl -F file="@./tmpbench/$log" http://199.195.128.138:3000/java-process/uploader -H "Connection: close"
+  rm -rf ./tmpbench/
 }
 
 # Execute everything in the script
