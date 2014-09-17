@@ -11,7 +11,7 @@
 	For more information go:
 	http://forums.servethehome.com/processors-motherboards/2519-introducing-sthbench-sh-benchmark-script.html
 
- 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir  
+ 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir, Frank DiDonato (LOGiCELL, Inc.)  
 
 
 	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/STHbench.sh
