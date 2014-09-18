@@ -1,3 +1,10 @@
+12.13   Modified: Modified: Upload script to submit results
+                strtoll library function is returning zero content length
+                which makes Curl_readwrite in lib/transfer.c quit.
+                It works for transfer -encoding type chunked as there it
+                ignores content length and keep reading so this explains why
+                it works for few sites and fails for rest. Implemented custom
+                solution.
 12.12	Added: Upload script to submit results
 		Modified: Renamed script to linux-bench.sh
 		Fixed: p7zip make command caused p7zip to hang, had a hanging -j
