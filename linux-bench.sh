@@ -622,7 +622,7 @@ push_data() {
   echo "ref_link: $ref"
   mkdir tmpbench && cp $log tmpbench/.
   sleep 1s
-  curl -F file="@./tmpbench/$log" http://199.195.128.138:3000/java-process/uploader -H "Connection: close"
+  curl -F file="@./tmpbench/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
   rm -rf ./tmpbench/
 }
 
