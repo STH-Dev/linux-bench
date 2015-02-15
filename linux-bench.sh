@@ -93,31 +93,7 @@ setup()
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
-
-	# Global defines
-
-
-	# Physical sockets
-	sockets=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-
-        # Physical Cores
-        if [[ $CPU == "x86" ]] ; then
-                procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-                pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
-                cores=$((procs*pcores))
-        elif [[ $CPU == "ATOM" ]] ; then
-                cores=$(grep "processor" /proc/cpuinfo | wc -l)
-        else
-                echo "Unknown CPU"
-        fi
-
-	# Virtual Cores (include threads)
-	vcores=$(grep "processor" /proc/cpuinfo | wc -l)
-	threads=$vcores
-	nproc=$vcores
-
-
-
+\
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
 }
@@ -271,6 +247,29 @@ fi
 echo "CPU="$CPU
 
 echo "Linux-Bench Version="$rev
+}
+
+proc_define()
+{
+		# Physical sockets
+	sockets=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+
+        # Physical Cores
+        if [[ $CPU == "x86" ]] ; then
+                procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+                pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
+                cores=$((procs*pcores))
+        elif [[ $CPU == "ATOM" ]] ; then
+                cores=$(grep "processor" /proc/cpuinfo | wc -l)
+        else
+                echo "Unknown CPU"
+        fi
+
+	# Virtual Cores (include threads)
+	vcores=$(grep "processor" /proc/cpuinfo | wc -l)
+	threads=$vcores
+	nproc=$vcores
+
 }
 
 
@@ -636,6 +635,8 @@ done
 	echo "derpinfo"
 	sysinfo  exiting on sysinfo...
 	sysinfo
+	echo "proc_define"
+	proc_define
 	echo "run benches"
 	runBenches
 	echo "done"
