@@ -1,3 +1,6 @@
+12.14	Fixed: Added better proc/core detection
+		Added: Rudimentary detection of ARM vs x86
+		Added: Printes out version of benchmark
 12.13   Modified: Modified: Upload script to submit results
                 strtoll library function is returning zero content length
                 which makes Curl_readwrite in lib/transfer.c quit.

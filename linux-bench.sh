@@ -25,7 +25,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.12'
+rev='12.14'
 
 version()
 {
@@ -93,7 +93,7 @@ setup()
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
-        
+\
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
 }
@@ -232,6 +232,44 @@ sysinfo()
 	fi
 	: ${VIRTUAL:=FALSE}
 	echo "VIRTUAL="$VIRTUAL
+
+
+# Check to see if the CPU is an Intel/AMD or ARM
+# This is a simple check for now.
+
+cpu_check=$(grep 'CPU architecture' /proc/cpuinfo)
+if [ $? -ne 0 ] ; then
+	CPU=x86
+else
+	CPU=ATOM;
+fi
+
+echo "CPU="$CPU
+
+echo "Linux-Bench Version="$rev
+}
+
+proc_define()
+{
+		# Physical sockets
+	sockets=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+
+        # Physical Cores
+        if [[ $CPU == "x86" ]] ; then
+                procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
+                pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
+                cores=$((procs*pcores))
+        elif [[ $CPU == "ATOM" ]] ; then
+                cores=$(grep "processor" /proc/cpuinfo | wc -l)
+        else
+                echo "Unknown CPU"
+        fi
+
+	# Virtual Cores (include threads)
+	vcores=$(grep "processor" /proc/cpuinfo | wc -l)
+	threads=$vcores
+	nproc=$vcores
+
 }
 
 
@@ -275,7 +313,6 @@ cray()
 	appdlpath=http://www.futuretech.blinkenlights.nl/depot/$apptgz
 	extract
 	
-	threads=$(grep "processor" /proc/cpuinfo | wc -l)
 	echo "Running C-Ray test"
 	cd c-ray-1.1 && make
 	echo "c-ray Easy Test"
@@ -302,11 +339,6 @@ stream()
 	fi
 
 	gcc stream.c -O3 -march=native -fopenmp -o stream-me
-
-	# Determine number of physical cores (not hyperthread) and set OMP to cores value
-	procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-	pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
-	cores=$((procs*pcores))
 
 	export OMP_NUM_THREADS=$cores
 	export GOMP_CPU_AFFINITY=0-$((cores-1))
@@ -336,8 +368,7 @@ OSSL()
 	./config no-zlib 2>&1 >> /dev/null
 	make 2>&1 >> /dev/null
 	echo "Running OpenSSL test"
-   	nproc=`nproc`
-	./apps/openssl speed rsa4096 -multi ${nproc}
+ 	./apps/openssl speed rsa4096 -multi $nproc
 	
 	cd $benchdir
 	rm -rf openssl*
@@ -373,8 +404,7 @@ sysb()
    	echo "Running sysbench CPU Single Thread"
    	sysbench --test=cpu --cpu-max-prime=30000 run
    	echo "Running sysbench CPU Multi-Threaded"
-   	nproc=`nproc`
-   	sysbench --num-threads=${nproc} --test=cpu --cpu-max-prime=300000 run
+   	sysbench --num-threads=$nproc --test=cpu --cpu-max-prime=300000 run
 }
 
 
@@ -459,11 +489,6 @@ NPB()
 
 	make suite
 
-	# Determine number of physical cores (not hyperthread) and set OMP to cores value
-	procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-	pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
-	cores=$((procs*pcores))
-
 	export OMP_NUM_THREADS=$cores
 
 	echo "Running NPB tests"
@@ -495,13 +520,11 @@ NAMD()
 	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	extract
 
-	cores=$(grep "processor" /proc/cpuinfo | wc -l)
-
-	echo "Using" $cores "threads"
+	echo "Using" $threads "threads"
 	echo "Running NAMD benchmark... (will take a while)"
 
 	cd NAMD_2.9_Linux-x86_64-multicore
-	timeperstep=$(./namd2 +p$cores +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
+	timeperstep=$(./namd2 +p$threads +setcpuaffinity ../apoa1/apoa1.namd | grep "Benchmark time" | tail -1 | cut -d" " -f6)
 
 	echo "Time per step" $timeperstep
 	
@@ -612,6 +635,8 @@ done
 	echo "derpinfo"
 	sysinfo  exiting on sysinfo...
 	sysinfo
+	echo "proc_define"
+	proc_define
 	echo "run benches"
 	runBenches
 	echo "done"
