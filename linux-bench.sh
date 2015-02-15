@@ -93,7 +93,7 @@ setup()
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
-\
+
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
 }
@@ -241,7 +241,7 @@ cpu_check=$(grep 'CPU architecture' /proc/cpuinfo)
 if [ $? -ne 0 ] ; then
 	CPU=x86
 else
-	CPU=ATOM;
+	CPU=ARM;
 fi
 
 echo "CPU="$CPU
@@ -259,7 +259,7 @@ proc_define()
                 procs=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
                 pcores=$(grep "cpu cores" /proc/cpuinfo |sort -u |cut -d":" -f2)
                 cores=$((procs*pcores))
-        elif [[ $CPU == "ATOM" ]] ; then
+        elif [[ $CPU == "ARM" ]] ; then
                 cores=$(grep "processor" /proc/cpuinfo | wc -l)
         else
                 echo "Unknown CPU"
