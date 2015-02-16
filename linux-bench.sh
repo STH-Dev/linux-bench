@@ -1,7 +1,7 @@
 #!/bin/bash
 #	
 #	Linux-Bench CPU Benchmark Script
-#	(C) 2013-2014 ServeTheHome.com and ServeThe.biz
+#	(C) 2013-2015 ServeTheHome.com and ServeThe.biz
 #
 # 	Linux-Bench - A System benchmark and comparison tool created by the STH community.
 #
@@ -18,10 +18,10 @@
 #	Latest development versions are available on the GitHub site:  https://github.com/STH-Dev/linux-bench/
 #
 #   	If you find bugs, verify you are on the latest version and then post in:
-#	http://forums.servethehome.com/index.php?threads/introducing-the-sthbench-sh-benchmark-script.2519/
+#	https://forums.servethehome.com/index.php?forums/linux-bench/
 #
 #	To view your results, check the reference ID at the end of the log file generated. You can copy and paste
-#	the ID number here: http://199.195.128.138/ and see parsed results.
+#	the ID number here: http://linux-bench.com/parser.html and see parsed results.
 ################################################################################################################################
 
 #Current Version
@@ -31,7 +31,7 @@ version()
 {
 cat << EOF
 ##############################################################
-#  (c) 2014 ServeTheHome.com and ServeThe.biz
+#  (c) 2013-2015 ServeTheHome.com and ServeThe.biz
 # 
 #	Linux-Bench $rev
 #	- Linux-Bench the STH Benchmark Suite 
