@@ -645,6 +645,7 @@ done
 push_data() {
   ref=$(date +%S%d$i%s)
   echo "ref_link: $ref"
+  echo "See your results online at: http://linux-bench.com/display/$ref"
   mkdir tmpbench && cp $log tmpbench/.
   sleep 1s
   curl -F file="@./tmpbench/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
