@@ -60,6 +60,10 @@ OPTIONAL ARGS:
 OPTIONS:
 	-h	help (usage info)
     	-V	Version of Linux-Bench
+    	-p 	Private Result, results will not be in the public database
+    	-e	Email results, a perfect pairing with private results.
+    		use -e email@email.net
+    	
 
 ENVIRONMENT VARIABLES:
 
@@ -605,7 +609,8 @@ main()
 {	
 rootcheck
 
-while getopts "hVR" arg; do
+while getopts "hVRpe:" arg; do
+
   case $arg in
 	h)
 	usage
@@ -614,6 +619,12 @@ while getopts "hVR" arg; do
 	V)
 	version
 	exit 1
+	;;
+	p)
+	echo "Private Result"
+	;;
+	e)
+	echo $OPTARG
 	;;
 	\?)
      	usage
