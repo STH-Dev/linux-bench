@@ -1,3 +1,8 @@
+12.15	Added: 2 flags 
+		-p 	Private Result, results will not be in the public database
+    		-e	Email results, a perfect pairing with private results.
+    		use -e email@email.net
+
 12.14	Fixed: Added better proc/core detection
 		Added: Rudimentary detection of ARM vs x86
 		Added: Printes out version of benchmark
