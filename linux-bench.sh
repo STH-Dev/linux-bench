@@ -624,7 +624,7 @@ while getopts "hVRpe:" arg; do
 	echo "Private Result"
 	;;
 	e)
-	echo $OPTARG
+	echo "Send Linux-Bench result to:" $OPTARG
 	;;
 	\?)
      	usage
