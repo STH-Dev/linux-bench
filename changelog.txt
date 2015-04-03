@@ -1,3 +1,8 @@
+12.16	Fixed: 
+		-p -e now set variables that echo after logging starts...rather than echoing beforehand
+		version module called after setup so that it is also logged.
+		email and private currently printed out in setup, can be moved to seperate module if needed.
+
 12.15	Added: 2 flags 
 		-p 	Private Result, results will not be in the public database
     		-e	Email results, a perfect pairing with private results.
