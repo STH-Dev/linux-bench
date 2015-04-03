@@ -25,7 +25,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.15'
+rev='12.16'
 
 version()
 {
@@ -97,7 +97,15 @@ setup()
 	if [ -f /.dockerinit ] ; then
 		log=/data/"linux-bench"$rev"_"$host"_"$full_date.log
 	fi
-
+	
+	if [ -n "$isprivate" ]; then
+		echo $isprivate
+	fi
+	
+	if [ -n "$email" ]; then
+		echo $email
+	fi
+	
 	#outdir=$host"_"$full_date
 	#mkdir $outdir
 }
@@ -621,10 +629,10 @@ while getopts "hVRpe:" arg; do
 	exit 1
 	;;
 	p)
-	echo "Private Result"
+	isprivate="Private Result"
 	;;
 	e)
-	echo "Send Linux-Bench result to:" $OPTARG
+        email="Send Linux-Bench result to: $OPTARG"
 	;;
 	\?)
      	usage
@@ -632,11 +640,11 @@ while getopts "hVRpe:" arg; do
      	;;
   esac
 done
-
-	echo "version"
-	version
+	
 	echo "setup"
 	setup
+	echo "version"
+	version
 	echo "whichdistro"
 	whichdistro
 	echo "dlDep"
