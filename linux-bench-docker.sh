@@ -665,11 +665,11 @@ push_data() {
   ref=$(date +%S%d$i%s)
   echo "ref_link: $ref"
   echo "See your results online at: http://beta.linux-bench.com/display/$ref"
-#  mkdir tmpbench && cp $log tmpbench/.
+  cp $log /data/
   sleep 1s
-  curl -F file="@$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
-  curl --form file="@$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
-#  rm -rf ./tmpbench/
+  curl -F file="@/data/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
+  curl --form file="@/data/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
+  rm -rf ./tmpbench/
 }
 
 # Execute everything in the script
