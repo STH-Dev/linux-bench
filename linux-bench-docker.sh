@@ -1,6 +1,6 @@
 #!/bin/bash
 #	
-#	Linux-Bench CPU Benchmark Script
+#	Linux-Bench - Docker CPU Benchmark Script
 #	(C) 2013-2015 ServeTheHome.com and ServeThe.biz
 #
 # 	Linux-Bench - A System benchmark and comparison tool created by the STH community.
@@ -11,7 +11,7 @@
 #	Linux-Bench must be run as root or using a su prompt to automate download and installation of benchmarks
 #
 #	For more information go:
-#	http://www.linux-bench.com
+#	http://linux-bench.com
 #
 # 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir, Frank DiDonato (LOGiCELL, Inc.)  
 #
