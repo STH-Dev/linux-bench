@@ -669,7 +669,7 @@ push_data() {
 #  cp $log /data/
   sleep 1s
   curl -F file="/data/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
-  curl --form file="/data/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
+  curl --form file="@/data/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
 #  rm -rf ./tmpbench/
 }
 
