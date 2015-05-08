@@ -11,7 +11,7 @@
 #	Linux-Bench must be run as root or using a su prompt to automate download and installation of benchmarks
 #
 #	For more information go:
-#	http://www.linux-bench.com
+#	http://linux-bench.com
 #
 # 	Authors: Patrick Kennedy, Charles Nguyen (Chuckleb), Patriot, nitrobass24, mir, Frank DiDonato (LOGiCELL, Inc.)  
 #
