@@ -665,7 +665,7 @@ push_data() {
   ref=$(date +%S%d$i%s)
   echo "ref_link: $ref"
   echo "Docker Version"
-  echo "See your results online at: http://beta.linux-bench.com/display/$ref"
+  echo "See your results online at: http://linux-bench.com/display/$ref"
 #  cp $log /data/
   sleep 1s
   curl -F file="/data/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
