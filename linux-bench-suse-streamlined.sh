@@ -110,26 +110,6 @@ setup()
 	#mkdir $outdir
 }
 
-
-# Update and install required packages (Debian)
-Update_Install_Debian()
-{
-	apt-get update
-	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran curl
-	mkdir -p /usr/tmp/
-	rm /etc/apt/sources.list.d/linuxbench.list
-}
-
-
-# Update and install required packages (CentOS/RHEL)
-Update_Install_RHEL()
-{
-	rpm -Uhv http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-	rpm -Uhv http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-	yum -y groupinstall "Development Tools" && yum -y install wget sysbench unzip libX11 perl-Time-HiRes mesa-libGLU hardinfo expect php-common glibc.i686 gfortran curl
-}
-
-
 # Detects which OS and if it is Linux then it will detect which Linux Distribution.
 whichdistro() 
 {
@@ -198,13 +178,6 @@ dlDependancies()
 	if [ -f /.dockerinit ] ; then
 	echo "In a Docker container, no updates run."
 	VIRTUAL="TRUE"
-	elif [ "${DIST}" = "CentOS" ] ; then
-	Update_Install_RHEL
-	elif [ "${DIST}" = "RedHat" ] ; then
-	Update_Install_RHEL
-	elif [ "${DIST}" = "Debian" ] || [ "${DIST}" = "Ubuntu" ] ; then
-	Update_Install_Debian
-	fi
 }
 
 
@@ -298,8 +271,7 @@ ubench()
 {
 	cd $benchdir
 	echo "Building UnixBench"
-	wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
-        wget -N http://linuxbench.servethehome.com/benchfiles/fix-limitation.patch 
+
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
@@ -309,7 +281,6 @@ ubench()
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
 	cd $benchdir
-	rm -rf UnixBench* fix-limitation.patch
 	
 }
 
@@ -388,27 +359,6 @@ OSSL()
 	
 }
 
-crafty()
-{
-	cd $benchdir
-   	wget -N http://www.craftychess.com/crafty-23.4.zip
-   	unzip -o crafty-23.4.zip
-   	cd crafty-23.4/
-   	export target=LINUX
-   	export CFLAGS="-Wall -pipe -O3 -fomit-frame-pointer $CFLAGS"
-   	export CXFLAGS="-Wall -pipe -O3 -fomit-frame-pointer"
-   	export LDFLAGS="$LDFLAGS -lstdc++"
-   	make crafty-make
-   	chmod +x crafty
-   	./crafty bench end
-	
-	cd $benchdir
-	rm -rf crafty*
-	
-}
-
-
-
 # sysbench CPU test prime
 sysb()
 {
@@ -430,9 +380,8 @@ red()
 	tar xzf redis-stable.tar.gz && cd redis-stable && make install
 	cp utils/redis_init_script /etc/init.d/redis_6379
 	mkdir -p /var/redis/6379
-	wget http://linuxbench.servethehome.com/benchfiles/6379.conf
 	mkdir -p /etc/redis
-	cp ./6379.conf /etc/redis
+	cp 6379.conf /etc/redis
 
 	service redis_6379 start
 
@@ -464,8 +413,7 @@ red()
 
 	redis-cli shutdown
 	
-	cd $benchdir
-	rm -rf redis* /etc/redis /var/redis* /usr/local/bin/redis-* /etc/init.d/redis_*
+	cd $benchdiry
 
 }
 
