@@ -298,7 +298,7 @@ ubench()
 {
 	cd $benchdir
 	echo "Building UnixBench"
-	wget -N https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
+	wget -N --no-check-certificate https://byte-unixbench.googlecode.com/files/UnixBench5.1.3.tgz 
         wget -N http://linuxbench.servethehome.com/benchfiles/fix-limitation.patch 
 	tar -zxf UnixBench5.1.3.tgz
 	
