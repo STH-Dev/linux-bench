@@ -87,7 +87,7 @@ rootcheck()
 #Set Functions
 setup()
 {
-	benchdir=`/root/`
+	benchdir=`/root`
 	NEED_PTS=1
 
 	date_str="+%Y_%m%d_%H%M%S"
@@ -203,6 +203,18 @@ extract()
 	fi
 }
 
+localextract()
+{
+	if [ -e ./$appbin ] ; then
+		echo "$apptgz already installed"
+	elif [ -e ./$apptgz ] ; then
+		tar $tgzstring $apptgz
+	else
+		cp  $benchdir/benchfiles/$apptgz $benchdir
+		tar $tgzstring $apptgz
+	fi
+}
+
 
 #System information and log capture.
 sysinfo()
@@ -271,7 +283,7 @@ ubench()
 {
 	cd $benchdir
 	echo "Building UnixBench"
-
+        cp /root/benchfiles/UnixBench5.1.3.tgz $benchdir
 	tar -zxf UnixBench5.1.3.tgz
 	
 	cd UnixBench 
@@ -294,7 +306,7 @@ cray()
 	tgzstring=xfz
 	appbin=$appbase/c-ray-mt
 	appdlpath=http://www.futuretech.blinkenlights.nl/depot/$apptgz
-	extract
+	localextract
 	
 	echo "Running C-Ray test"
 	cd c-ray-1.1 && make
@@ -318,7 +330,7 @@ stream()
 	if [ -e stream.c ] ; then
 		echo "Stream downloaded"
 	else
-		wget -N http://www.cs.virginia.edu/stream/FTP/Code/stream.c
+		cp /root/benchfiles/stream.c $benchdir
 	fi
 
 	gcc stream.c -O3 -march=native -fopenmp -o stream-me
@@ -344,7 +356,7 @@ OSSL()
 	tgzstring=xfz
 	appbin=$appbase/apps/openssl
 	appdlpath=http://www.openssl.org/source/$apptgz
-	extract
+	localextract
 
 	cd openssl-1.0.1g/
 	echo "Building OpenSSL"
@@ -373,10 +385,11 @@ sysb()
 # redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
 red()
 {
+
 	cd $benchdir
 	echo "Building Redis"
 
-	wget http://download.redis.io/redis-stable.tar.gz
+	cp /root/benchfiles/redis-stable.tar.gz $benchdir
 	tar xzf redis-stable.tar.gz && cd redis-stable && make install
 	cp utils/redis_init_script /etc/init.d/redis_6379
 	mkdir -p /var/redis/6379
@@ -427,7 +440,7 @@ NPB()
 	appbin=NPB3.3.1/NPB3.3-OMP
 	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
 	tgzstring=xfz
-	extract
+	localextract
 	
 	cd NPB3.3.1/NPB3.3-OMP/
 	echo "Building NPB"
@@ -471,14 +484,14 @@ NAMD()
 	tgzstring=xfz
 	appbin=$appbase/namd2
 	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
-	extract
+	localextract
 	
 	appbase=apoa1
 	apptgz=apoa1.tar.gz
 	tgzstring=xfz
 	appbin=$appbase/apoa1.pdb
 	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
-	extract
+	localextract
 
 	echo "Using" $threads "threads"
 	echo "Running NAMD benchmark... (will take a while)"
@@ -503,7 +516,7 @@ p7zip()
 	tgzstring=xfj
 	appbin=p7zip_9.20.1/bin/7za
 	appdlpath=http://linuxbench.servethehome.com/benchfiles/$apptgz
-	extract
+	localextract
 
 	echo "Building p7zip"
 	cd $appbase
@@ -531,8 +544,9 @@ runBenches()
 #	while [ $iterations -gt 0 ] ; do
 		echo "hardinfo"  
 		time hardi
-		echo "ubench"
-		time ubench
+#commenting out UnixBench to make faster for testing
+#		echo "ubench"
+#		time ubench
 		echo "cray"
 		time cray
 		echo "stream"
