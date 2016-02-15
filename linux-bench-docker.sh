@@ -26,7 +26,7 @@
 
 #Current Version
 rev='12.16'
-
+echo "Docker Version!"
 version()
 {
 cat << EOF
