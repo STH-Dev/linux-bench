@@ -26,7 +26,7 @@
 
 #Current Version
 rev='12.16'
-echo "Docker Version!"
+
 version()
 {
 cat << EOF
@@ -136,7 +136,9 @@ whichdistro()
 	OS=`uname -s`
 	REV=`uname -r`
 	MACH=`uname -m`
-
+	if [ -f /.dockerinit ]; then
+    		echo "Docker Version";
+	fi
 	if [ "${OS}" = "SunOS" ] ; then
 		OS=Solaris
 		DIST=Solaris
@@ -182,7 +184,7 @@ whichdistro()
 
 		elif [ -f /etc/UnitedLinux-release ] ; then
 			DIST="${DIST}[`cat /etc/UnitedLinux-release | tr "\n" ' ' | sed s/VERSION.*//`]"
-			
+		
 		else 
 			DIST='Not detected'	
 		fi
