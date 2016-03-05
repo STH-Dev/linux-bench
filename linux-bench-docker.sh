@@ -25,7 +25,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.16'
+rev='12.17'
 
 version()
 {
@@ -670,10 +670,12 @@ push_data() {
   echo "See your results online at: http://beta.linux-bench.com/display/$ref"
 #  mkdir tmpbench && cp $log tmpbench/.
   sleep 1s
-#  curl -F file="@./tmpbench/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
+  curl -F file="@./tmpbench/$log" http://linux-bench.com:3000/java-process/uploader -H "Connection: close"
 #  curl --form file="@./tmpbench/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
 #  rm -rf ./tmpbench/
   curl --form file="@./$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
+  curl --form file="@./$log" --form press=Upload http://linux-bench.com/upload_file/ --trace-ascii dumpfile
+
 }
 
 # Execute everything in the script
