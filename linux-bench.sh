@@ -668,12 +668,13 @@ push_data() {
   mkdir tmpbench && cp $log tmpbench/.
   sleep 1s
 #  curl -F file="@./tmpbench/$log" http://parser.linux-bench.com:3000/java-process/uploader -H "Connection: close"
-#  curl --form file="@./tmpbench/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
+  curl --form file="@./tmpbench/$log" --form press=Upload http://beta.linux-bench.com/upload_file/ --trace-ascii dumpfile
   
 #Adding new script targets
   curl --form file="@./tmpbench/$log" --form press=Upload http://linux-bench.com/upload_file/ --trace-ascii dumpfile
 #  curl -F file="@./tmpbench/$log" http://linux-bench.com:3000/java-process/uploader -H "Connection: close"
   rm -rf ./tmpbench/
+  echo "ref_link: $ref"
 }
 
 # Execute everything in the script
