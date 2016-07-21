@@ -1,4 +1,4 @@
-		(C) 2013-2015 ServeTheHome.com and ServeThe.biz
+		(C) 2013-2016 ServeTheHome.com and ServeThe.biz
 		
  	Linux-Bench - A System Benchmark and comparison tool created by the STH community.
 
