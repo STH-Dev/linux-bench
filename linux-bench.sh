@@ -319,10 +319,10 @@ cray()
 	cd $benchdir
 	
 	appbase=c-ray-1.1
-	apptgz=c-ray-1.1.tar.gz
+	apptgz=c-ray-1.1.gz
 	tgzstring=xfz
 	appbin=$appbase/c-ray-mt
-	appdlpath=http://www.futuretech.blinkenlights.nl/depot/$apptgz
+	appdlpath=http://files.linux-bench.com/lb/$apptgz
 	extract
 	
 	echo "Running C-Ray test"
