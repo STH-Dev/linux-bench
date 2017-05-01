@@ -25,7 +25,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.18'
+rev='12.19'
 
 version()
 {
@@ -115,7 +115,7 @@ setup()
 Update_Install_Debian()
 {
 	apt-get update
-	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran curl
+	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php7.0-curl php7.0-common php7.0-cli php7.0-gd libfpdi-php gfortran curl
 	mkdir -p /usr/tmp/
 	rm /etc/apt/sources.list.d/linuxbench.list
 }
