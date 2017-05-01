@@ -115,7 +115,7 @@ setup()
 Update_Install_Debian()
 {
 	apt-get update
-	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php5-curl php5-common php5-cli php5-gd libfpdi-php gfortran curl
+	apt-get -y install build-essential libx11-dev libglu-dev hardinfo sysbench unzip expect php-curl php-common php-cli php-gd libfpdi-php gfortran curl binutils
 	mkdir -p /usr/tmp/
 	rm /etc/apt/sources.list.d/linuxbench.list
 }
