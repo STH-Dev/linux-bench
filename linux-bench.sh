@@ -304,7 +304,7 @@ ubench()
 	
 	cd UnixBench 
 	mv ../fix-limitation.patch .	
-	make 
+	make -j$(nproc)
 	patch Run fix-limitation.patch
 	echo "Running UnixBench"
 	./Run dhry2reg whetstone-double syscall pipe context1 spawn execl shell1 shell8 shell16
