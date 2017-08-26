@@ -1,7 +1,7 @@
 #!/bin/bash
 #	
 #	Linux-Bench CPU Benchmark Script
-#	(C) 2013-2015 ServeTheHome.com and ServeThe.biz
+#	(C) 2013-2017 ServeTheHome.com and ServeThe.biz
 #
 # 	Linux-Bench - A System benchmark and comparison tool created by the STH community.
 #
@@ -31,7 +31,7 @@ version()
 {
 cat << EOF
 ##############################################################
-#  (c) 2013-2016 ServeTheHome.com and ServeThe.biz
+#  (c) 2013-2017 ServeTheHome.com and ServeThe.biz
 # 
 #	Linux-Bench $rev
 #	- Linux-Bench the STH Benchmark Suite 
