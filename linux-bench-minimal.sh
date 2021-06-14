@@ -25,7 +25,7 @@
 ################################################################################################################################
 
 #Current Version
-rev='12.19'
+rev='12.20'
 
 version()
 {
@@ -421,53 +421,53 @@ sysb()
 
 
 # redis Benchmark based on feedback. Next step is to add memchached as seen here: http://oldblog.antirez.com/post/redis-memcached-benchmark.html
-red()
-{
-	cd $benchdir
-	echo "Building Redis"
-
-	wget http://download.redis.io/redis-stable.tar.gz
-	tar xzf redis-stable.tar.gz && cd redis-stable && make install
-	cp utils/redis_init_script /etc/init.d/redis_6379
-	mkdir -p /var/redis/6379
-	wget http://files.linux-bench.com/lb/6379.conf
-	mkdir -p /etc/redis
-	cp ./6379.conf /etc/redis
-
-	service redis_6379 start
-
-   	# Original redis benchmark set/ get test
-
-	echo "Running Redis test"
-	redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
-
-	BIN=redis-benchmark
-
-	payload=32
-	iterations=10000
-	keyspace=100000
-
-	for clients in 1 5 10 25 50 75 100
-	do
-		SPEED=0
-		for dummy in 0 1 2
-			do
-				S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
-				VALUE=$(echo $S | awk '{printf "%.0f",$1}')
-				if [ $(($VALUE > $SPEED)) != 0 ]
-					then
-					SPEED=$VALUE
-				fi
-			done
-		echo "$clients $SPEED"
-	done
-
-	redis-cli shutdown
-	
-	cd $benchdir
-	rm -rf redis* /etc/redis /var/redis* /usr/local/bin/redis-* /etc/init.d/redis_*
-
-}
+#red()
+#{
+#	cd $benchdir
+#	echo "Building Redis"
+#
+#	wget http://download.redis.io/redis-stable.tar.gz
+#	tar xzf redis-stable.tar.gz && cd redis-stable && make install
+#	cp utils/redis_init_script /etc/init.d/redis_6379
+#	mkdir -p /var/redis/6379
+#	wget http://files.linux-bench.com/lb/6379.conf
+##	mkdir -p /etc/redis
+#	cp ./6379.conf /etc/redis
+#
+#	service redis_6379 start
+#
+#   	# Original redis benchmark set/ get test
+#
+#	echo "Running Redis test"
+#	redis-benchmark -n 1000000 -t set,get -P 32 -q -c 200
+#
+#	BIN=redis-benchmark
+#
+#	payload=32
+#	iterations=10000
+#	keyspace=100000
+#
+#	for clients in 1 5 10 25 50 75 100
+#	do
+#		SPEED=0
+#		for dummy in 0 1 2
+#			do
+#				S=$($BIN -n $iterations -r $keyspace -d $payload -c $clients | grep 'per second' | tail -1 | awk '{print $1}')
+#				VALUE=$(echo $S | awk '{printf "%.0f",$1}')
+#				if [ $(($VALUE > $SPEED)) != 0 ]
+#					then
+#					SPEED=$VALUE
+#				fi
+#			done
+#		echo "$clients $SPEED"
+#	done
+#
+#	redis-cli shutdown
+#	
+#	cd $benchdir
+#	rm -rf redis* /etc/redis /var/redis* /usr/local/bin/redis-* /etc/init.d/redis_*
+#
+#}
 
 
 # NPB Benchmarks
